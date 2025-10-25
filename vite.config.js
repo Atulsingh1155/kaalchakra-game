@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-  base: '/',
+  base: './',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
@@ -13,6 +13,7 @@ export default defineConfig({
     }
   },
   server: {
-    host: true
+    host: true,
+    port: 3000
   }
 });
