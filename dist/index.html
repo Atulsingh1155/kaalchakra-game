@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -44,129 +44,9 @@
       background: #000;
     }
   </style>
-  <script type="module" crossorigin src="./assets/index-BNVoeBw3.js"></script>
+  <script type="module" crossorigin src="./assets/index-BONp4MGN.js"></script>
 </head>
 <body>
-  <div id="game-container"></div>
-  <script type="module" src="/src/main.js"></script>
-</body>
-</html> -->
-
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
-  <!-- Add these meta tags to force landscape -->
-  <meta http-equiv="ScreenOrientation" content="autoRotate:disabled">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Kaalchakra: The Curse of Time</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      touch-action: none;
-    }
-    
-    html {
-      /* Force landscape by rotating the viewport */
-      @media screen and (orientation: portrait) {
-        transform: rotate(-90deg);
-        transform-origin: left top;
-        width: 100vh;
-        height: 100vw;
-        overflow-x: hidden;
-        position: absolute;
-        top: 100%;
-        left: 0;
-      }
-    }
-    
-    body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: fixed;
-    }
-    
-    #game-container {
-      width: 100%;
-      height: 100%;
-      position: fixed;
-      top: 0;
-      left: 0;
-      touch-action: none;
-      background: #000;
-    }
-
-    /* Simplified rotation message */
-    #rotate-message {
-      display: none; /* Hide by default */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: #000;
-      color: #fff;
-      justify-content: center;
-      align-items: center;
-      z-index: 999;
-      font-size: 24px;
-      text-align: center;
-      padding: 20px;
-    }
-
-    @media screen and (orientation: portrait) and (max-width: 900px) {
-      #rotate-message {
-        display: flex;
-      }
-      #game-container {
-        visibility: hidden;
-      }
-    }
-
-    @media screen and (orientation: landscape) {
-      #rotate-message {
-        display: none;
-      }
-      #game-container {
-        visibility: visible;
-      }
-    }
-
-    /* iOS notch handling */
-    @supports (padding: max(0px)) {
-      body {
-        padding-left: max(0px, env(safe-area-inset-left));
-        padding-right: max(0px, env(safe-area-inset-right));
-        padding-top: max(0px, env(safe-area-inset-top));
-        padding-bottom: max(0px, env(safe-area-inset-bottom));
-      }
-    }
-  </style>
-</head>
-<body>
-  <div id="game-container"></div>
-  <div id="rotate-message">
-    Please rotate your device to landscape mode
-  </div>
-  <script>
-    // Force landscape on mobile devices
-    if (screen.orientation && screen.orientation.lock) {
-      screen.orientation.lock('landscape').catch(function() {
-        console.log('Orientation lock failed');
-      });
-    }
-  </script>
+  <div id="game-container"></div>
 </body>
 </html>

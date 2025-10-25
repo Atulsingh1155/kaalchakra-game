@@ -36,94 +36,30 @@ const scenes = [
   VictoryScene
 ];
 
-// class Game extends Phaser.Game {
-//   constructor() {
-//     super({ 
-//       ...GameConfig, 
-//       scene: scenes
-//     });
-
-//     // Automatically request fullscreen on game start
-//     this.requestFullscreenOnStart();
-//   }
-
-//   requestFullscreenOnStart() {
-//     const goFullscreen = () => {
-//       const gameContainer = document.getElementById('game-container');
-//       if (gameContainer && gameContainer.requestFullscreen) {
-//         gameContainer.requestFullscreen();
-//       }
-//       // Remove the listener after first call
-//       window.removeEventListener('pointerdown', goFullscreen);
-//       window.removeEventListener('touchstart', goFullscreen);
-//     };
-//     // Wait for user interaction (required by browsers)
-//     window.addEventListener('pointerdown', goFullscreen);
-//     window.addEventListener('touchstart', goFullscreen);
-//   }
-// }
-
-// window.addEventListener('load', () => {
-//   new Game();
-// });
-
 class Game extends Phaser.Game {
   constructor() {
-    super({ ...GameConfig, scene: scenes });
-    this.setupMobileFullscreen();
+    super({ 
+      ...GameConfig, 
+      scene: scenes
+    });
+
+    // Automatically request fullscreen on game start
+    this.requestFullscreenOnStart();
   }
 
-  setupMobileFullscreen() {
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    
-    if (isMobile) {
-      const enterFullscreen = async () => {
-        const gameContainer = document.getElementById('game-container');
-        
-        try {
-          // Request fullscreen
-          if (document.fullscreenEnabled) {
-            await gameContainer.requestFullscreen();
-          } else if (document.webkitFullscreenEnabled) {
-            await gameContainer.webkitRequestFullscreen();
-          }
-
-          // Lock orientation to landscape
-          if (screen.orientation && screen.orientation.lock) {
-            await screen.orientation.lock('landscape');
-          }
-
-          // Handle orientation changes
-          window.addEventListener('orientationchange', () => {
-            if (window.orientation === 90 || window.orientation === -90) {
-              document.getElementById('rotate-message').style.display = 'none';
-            } else {
-              document.getElementById('rotate-message').style.display = 'flex';
-            }
-          });
-
-          // Handle resize
-          window.addEventListener('resize', () => {
-            if (this.scale) {
-              this.scale.refresh();
-            }
-          });
-
-        } catch (err) {
-          console.log('Fullscreen/Orientation setup error:', err);
-        }
-      };
-
-      // Listen for first interaction
-      const startGame = () => {
-        enterFullscreen();
-        window.removeEventListener('pointerdown', startGame);
-        window.removeEventListener('touchstart', startGame);
-      };
-
-      window.addEventListener('pointerdown', startGame);
-      window.addEventListener('touchstart', startGame);
-    }
+  requestFullscreenOnStart() {
+    const goFullscreen = () => {
+      const gameContainer = document.getElementById('game-container');
+      if (gameContainer && gameContainer.requestFullscreen) {
+        gameContainer.requestFullscreen();
+      }
+      // Remove the listener after first call
+      window.removeEventListener('pointerdown', goFullscreen);
+      window.removeEventListener('touchstart', goFullscreen);
+    };
+    // Wait for user interaction (required by browsers)
+    window.addEventListener('pointerdown', goFullscreen);
+    window.addEventListener('touchstart', goFullscreen);
   }
 }
 
