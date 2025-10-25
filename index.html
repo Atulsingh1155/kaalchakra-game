@@ -58,6 +58,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- The viewport meta ensures proper scaling on all devices -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
   <title>Kaalchakra: The Curse of Time</title>
   <style>
@@ -65,50 +66,47 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      touch-action: none;
+      touch-action: none; /* Prevent unwanted gestures like pinch/zoom */
     }
-    
+
     html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
       background: #000;
       touch-action: none;
-      -webkit-touch-callout: none;
-      -webkit-user-select: none;
-      -webkit-tap-highlight-color: transparent;
     }
-    
+
     body {
       display: flex;
       justify-content: center;
       align-items: center;
       position: fixed;
+      inset: 0;
     }
-    
+
+    /* Game container that always fits the screen */
     #game-container {
       width: 100vw;
       height: 100vh;
-      position: fixed;
+      position: relative;
       top: 0;
       left: 0;
       touch-action: none;
     }
 
+    /* Show a rotate message if device is in portrait */
     @media screen and (orientation: portrait) {
       #rotate-message {
         display: flex;
         position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
+        inset: 0;
         background: #000;
         color: #fff;
         justify-content: center;
         align-items: center;
         z-index: 999;
-        font-size: 24px;
+        font-size: 22px;
         text-align: center;
         padding: 20px;
       }
@@ -119,28 +117,13 @@
         display: none;
       }
     }
-
-    /* iOS PWA fullscreen */
-    @supports (padding: max(0px)) {
-      body {
-        padding-left: min(0vw, env(safe-area-inset-left));
-        padding-right: min(0vw, env(safe-area-inset-right));
-        padding-top: min(0vh, env(safe-area-inset-top));
-        padding-bottom: min(0vh, env(safe-area-inset-bottom));
-      }
-    }
   </style>
-  <!-- Add PWA meta tags -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
   <div id="game-container"></div>
-  <div id="rotate-message">
-    Please rotate your device to landscape mode for the best experience
-  </div>
-  <!-- Change src to use root path -->
+  <div id="rotate-message">Please rotate your device to landscape mode for the best experience.</div>
+
+  <!-- ✅ Use relative path for Vercel compatibility -->
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>
