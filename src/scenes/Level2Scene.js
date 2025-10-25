@@ -10,7 +10,7 @@ export class Level2Scene extends Phaser.Scene {
     super('Level2Scene'); 
     this.distanceRun = 0;
     this.coinsCollected = 0;
-    this.coinsNeeded = 30;  // Changed to 30 coins target
+    this.coinsNeeded = 50;  // Changed to 30 coins target
     this.coinsToComplete = 50;  // Need 50 coins to complete level
     this.levelComplete = false;
     this.startX = 100;
@@ -49,11 +49,11 @@ export class Level2Scene extends Phaser.Scene {
     this.chaseStarted = false; // Will be set to true after power grant sequence
     // this.hazardImmune = false;
     // Extend world bounds for a larger level
-    this.physics.world.setBounds(0, 0, 5000, 540);
+    this.physics.world.setBounds(0, 0, 12000, 540);
     
     // Multiple backgrounds with new game_bg2
     this.backgrounds = [];
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 15; i++) {
       const bg = this.add.image(480 + (i * 960), 270, 'game_bg2');
       this.backgrounds.push(bg);
     }
@@ -62,7 +62,7 @@ export class Level2Scene extends Phaser.Scene {
     this.leftWall = this.add.rectangle(-10, 270, 20, 540, 0x000000, 0);
     this.physics.add.existing(this.leftWall, true);
     
-    this.rightWall = this.add.rectangle(5010, 270, 20, 540, 0x000000, 0);
+    this.rightWall = this.add.rectangle(12010, 270, 20, 540, 0x000000, 0);
     this.physics.add.existing(this.rightWall, true);
     
     // Create platforms and obstacles
@@ -106,7 +106,7 @@ export class Level2Scene extends Phaser.Scene {
     
     // Camera follow
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-    this.cameras.main.setBounds(0, 0, 5000, 540);
+    this.cameras.main.setBounds(0, 0, 12000, 540);
     
     // Create fireballs group with extended range
     this.fireballs = this.physics.add.group({
@@ -227,8 +227,8 @@ export class Level2Scene extends Phaser.Scene {
     this.cameras.main.fadeIn(1000, 0, 0, 0);
   }
   
-  createPlatforms() {
-    // Create various platforms throughout the level
+    createPlatforms() {
+    // Create various platforms throughout the EXTENDED level
     const platformData = [
       { x: 400, y: 400, width: 200, height: 20 },
       { x: 700, y: 350, width: 150, height: 20 },
@@ -238,10 +238,27 @@ export class Level2Scene extends Phaser.Scene {
       { x: 2200, y: 320, width: 200, height: 20 },
       { x: 2600, y: 380, width: 180, height: 20 },
       { x: 3000, y: 340, width: 150, height: 20 },
-      { x: 3400, y: 310, width: 220, height: 20 },
-      { x: 3800, y: 360, width: 200, height: 20 },
-      { x: 4200, y: 330, width: 180, height: 20 },
-      { x: 4600, y: 380, width: 250, height: 20 }
+      { x: 3400, y: 300, width: 200, height: 20 },
+      { x: 3800, y: 360, width: 180, height: 20 },
+      { x: 4200, y: 320, width: 150, height: 20 },
+      { x: 4600, y: 380, width: 200, height: 20 },
+      // NEW PLATFORMS for extended area
+      { x: 5000, y: 340, width: 180, height: 20 },
+      { x: 5400, y: 300, width: 200, height: 20 },
+      { x: 5800, y: 360, width: 150, height: 20 },
+      { x: 6200, y: 320, width: 200, height: 20 },
+      { x: 6600, y: 380, width: 180, height: 20 },
+      { x: 7000, y: 340, width: 150, height: 20 },
+      { x: 7400, y: 300, width: 200, height: 20 },
+      { x: 7800, y: 360, width: 180, height: 20 },
+      { x: 8200, y: 320, width: 150, height: 20 },
+      { x: 8600, y: 380, width: 200, height: 20 },
+      { x: 9000, y: 340, width: 180, height: 20 },
+      { x: 9400, y: 300, width: 150, height: 20 },
+      { x: 9800, y: 360, width: 200, height: 20 },
+      { x: 10200, y: 320, width: 180, height: 20 },
+      { x: 10600, y: 380, width: 150, height: 20 },
+      { x: 11000, y: 340, width: 200, height: 20 }
     ];
     
     platformData.forEach(platform => {
@@ -275,168 +292,193 @@ export class Level2Scene extends Phaser.Scene {
   }
   
   createHazards() {
-    // Create spikes and other hazards
-    const hazardLocations = [
-      { x: 950, y: this.groundY - 10 },
-      { x: 1350, y: this.groundY - 10 },
-      { x: 2000, y: this.groundY - 10 },
-      { x: 2500, y: this.groundY - 10 },
-      { x: 3200, y: this.groundY - 10 },
-      { x: 4000, y: this.groundY - 10 },
-      { x: 4400, y: this.groundY - 10 }
-    ];
-    
-    hazardLocations.forEach(loc => {
-      // Create spikes
-      const spikes = this.add.graphics();
-      spikes.fillStyle(0x888888);
-      
-      // Draw triangle spikes
-      for (let i = 0; i < 5; i++) {
-        spikes.moveTo(loc.x - 40 + i*20, loc.y);
-        spikes.lineTo(loc.x - 30 + i*20, loc.y - 20);
-        spikes.lineTo(loc.x - 20 + i*20, loc.y);
-        spikes.closePath();
-        spikes.fill();
-      }
-      
-      // Add collision body
-      const hazard = this.add.rectangle(loc.x, loc.y - 10, 100, 20, 0xff0000, 0);
-      this.hazards.add(hazard);
-      
-      // Add warning sign
-      const warningSign = this.add.text(loc.x, loc.y - 40, '⚠️', { fontSize: '24px' }).setOrigin(0.5);
-    });
-  }
+  // CHANGED: Create hazards as a regular physics group instead of static
+  this.hazards = this.physics.add.group();
   
-  createCheckpoints() {
-    // Add checkpoints throughout the level
-    const checkpointLocations = [
-      { x: 1000, y: this.groundY - 50 },
-      { x: 2000, y: this.groundY - 50 },
-      { x: 3000, y: this.groundY - 50 },
-      { x: 4000, y: this.groundY - 50 }
-    ];
+  const hazardLocations = [
+    { x: 950, y: this.groundY - 10 },
+    { x: 1350, y: this.groundY - 10 },
+    { x: 2000, y: this.groundY - 10 },
+    { x: 2500, y: this.groundY - 10 },
+    { x: 3200, y: this.groundY - 10 },
+    { x: 4000, y: this.groundY - 10 },
+    { x: 4400, y: this.groundY - 10 },
+    { x: 5200, y: this.groundY - 10 },
+    { x: 6000, y: this.groundY - 10 },
+    { x: 6800, y: this.groundY - 10 },
+    { x: 7500, y: this.groundY - 10 },
+    { x: 8300, y: this.groundY - 10 },
+    { x: 9100, y: this.groundY - 10 },
+    { x: 9900, y: this.groundY - 10 },
+    { x: 10700, y: this.groundY - 10 },
+    { x: 11400, y: this.groundY - 10 }
+  ];
+  
+  hazardLocations.forEach(loc => {
+    // Create spikes visual
+    const spikes = this.add.graphics();
+    spikes.fillStyle(0x888888);
     
-    checkpointLocations.forEach(loc => {
-      const checkpoint = this.physics.add.sprite(loc.x, loc.y, 'coin');
-      checkpoint.setScale(1.2);
-      checkpoint.setTint(0x00ffff);
-      checkpoint.setAlpha(0.8);
-      checkpoint.isCheckpoint = true;
-      checkpoint.position = { x: loc.x, y: this.groundY };
-      
-      // Add visual effect
-      this.tweens.add({
-        targets: checkpoint,
-        y: loc.y - 20,
-        duration: 1500,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.easeInOut'
-      });
-      
-      // Add glow effect
-      const glowCircle = this.add.circle(loc.x, loc.y, 30, 0x00ffff, 0.3);
-      this.tweens.add({
-        targets: glowCircle,
-        scale: 1.5,
-        alpha: 0.1,
-        duration: 1000,
-        yoyo: true,
-        repeat: -1
-      });
-      
-      this.checkpoints.add(checkpoint);
+    // Draw triangle spikes
+    for (let i = 0; i < 5; i++) {
+      spikes.moveTo(loc.x - 40 + i*20, loc.y);
+      spikes.lineTo(loc.x - 30 + i*20, loc.y - 20);
+      spikes.lineTo(loc.x - 20 + i*20, loc.y);
+      spikes.closePath();
+      spikes.fill();
+    }
+    
+    // FIXED: Create hazard as regular physics sprite (not static)
+    const hazard = this.physics.add.sprite(loc.x, loc.y - 10, 'fire_ball');
+    hazard.setVisible(false);
+    hazard.setSize(100, 20);
+    hazard.body.setAllowGravity(false);
+    hazard.body.setImmovable(true);
+    hazard.body.moves = false; // Don't let it move but keep it dynamic
+    this.hazards.add(hazard);
+    
+    // Add warning sign
+    const warningSign = this.add.text(loc.x, loc.y - 40, '⚠️', { fontSize: '24px' }).setOrigin(0.5);
+  });
+}
+   createCheckpoints() {
+  // Add checkpoints throughout the EXTENDED level
+  const checkpointLocations = [
+    { x: 1000, y: this.groundY - 50 },
+    { x: 2000, y: this.groundY - 50 },
+    { x: 3000, y: this.groundY - 50 },
+    { x: 4000, y: this.groundY - 50 },
+    { x: 5000, y: this.groundY - 50 },
+    { x: 6000, y: this.groundY - 50 },
+    { x: 7000, y: this.groundY - 50 },
+    { x: 8000, y: this.groundY - 50 },
+    { x: 9000, y: this.groundY - 50 },
+    { x: 10000, y: this.groundY - 50 }
+  ];
+  
+  checkpointLocations.forEach(loc => {
+    const checkpoint = this.physics.add.sprite(loc.x, loc.y, 'coin');
+    checkpoint.setScale(1.2);
+    checkpoint.setTint(0x00ffff);
+    checkpoint.setAlpha(0.8);
+    checkpoint.isCheckpoint = true;
+    checkpoint.position = { x: loc.x, y: this.groundY };
+    
+    // Make checkpoint physics body larger for easier collision
+    checkpoint.body.setSize(40, 40);
+    checkpoint.body.setAllowGravity(false);
+    checkpoint.body.setImmovable(true);
+    
+    // Add visual effect - FIXED: Animate the checkpoint sprite itself, not a separate circle
+    this.tweens.add({
+      targets: checkpoint,
+      y: loc.y - 20,
+      duration: 1500,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
     });
-  }
+    
+    // REMOVED: The duplicate glow circle that was creating the second visual
+    // No longer creating a separate circle here
+    
+    this.checkpoints.add(checkpoint);
+  });
+}
   
   createPowerups() {
-    // Create special powerups
-    const powerupLocations = [
-      { x: 1200, y: 250, type: 'speed' },
-      { x: 2400, y: 280, type: 'shield' },
-      { x: 3600, y: 260, type: 'multishot' }
-    ];
-    
-    powerupLocations.forEach(loc => {
-      const powerup = this.physics.add.sprite(loc.x, loc.y, 'fire_ball');
-      powerup.setScale(0.5);
-      
-      // Color based on type
-      switch (loc.type) {
-        case 'speed':
-          powerup.setTint(0x00ff00);
-          break;
-        case 'shield':
-          powerup.setTint(0x0000ff);
-          break;
-        case 'multishot':
-          powerup.setTint(0xff00ff);
-          break;
-      }
-      
-      powerup.type = loc.type;
-      
-      // Add floating animation
-      this.tweens.add({
-        targets: powerup,
-        y: loc.y - 20,
-        duration: 1500,
-        yoyo: true,
-        repeat: -1
-      });
-      
-      // Add rotation
-      this.tweens.add({
-        targets: powerup,
-        rotation: Math.PI * 2,
-        duration: 2000,
-        repeat: -1
-      });
-      
-      this.powerups.add(powerup);
-    });
-  }
+  // Create special powerups - EXTENDED for full level
+  const powerupLocations = [
+    { x: 1200, y: 250, type: 'speed' },
+    { x: 2400, y: 280, type: 'shield' },
+    { x: 3600, y: 260, type: 'multishot' },
+    { x: 5000, y: 270, type: 'speed' },
+    { x: 6500, y: 250, type: 'shield' },
+    { x: 8000, y: 280, type: 'multishot' },
+    { x: 9500, y: 260, type: 'speed' },
+    { x: 11000, y: 270, type: 'shield' }
+  ];
   
-  reachCheckpoint(player, checkpoint) {
-    if (checkpoint.active && !this.checkpointReached) {
-      this.checkpointReached = true;
-      this.lastCheckpoint = { x: checkpoint.position.x, y: checkpoint.position.y };
-      
-      // Visual effect
-      checkpoint.setTint(0xffff00);
-      this.cameras.main.flash(500, 0, 255, 255);
-      
-      // Show message
-      const checkpointText = this.add.text(
-        checkpoint.x,
-        checkpoint.y - 80,
-        'Checkpoint Reached!',
-        {
-          font: '20px Arial',
-          fill: '#FFFFFF',
-          stroke: '#000000',
-          strokeThickness: 3
-        }
-      ).setOrigin(0.5);
-      
-      this.tweens.add({
-        targets: checkpointText,
-        y: checkpointText.y - 50,
-        alpha: 0,
-        duration: 2000,
-        onComplete: () => checkpointText.destroy()
-      });
-      
-      // Reset checkpoint flag after delay
-      this.time.delayedCall(1000, () => {
-        this.checkpointReached = false;
-      });
-      
-      // Disable checkpoint
-      checkpoint.disableBody(true, false);
+  powerupLocations.forEach(loc => {
+    const powerup = this.physics.add.sprite(loc.x, loc.y, 'fire_ball');
+    powerup.setScale(0.5);
+    
+    // FIXED: Disable gravity on powerups
+    powerup.body.setAllowGravity(false);
+    powerup.body.setImmovable(true);
+    
+    // Color based on type
+    switch (loc.type) {
+      case 'speed':
+        powerup.setTint(0x00ff00);
+        break;
+      case 'shield':
+        powerup.setTint(0x0000ff);
+        break;
+      case 'multishot':
+        powerup.setTint(0xff00ff);
+        break;
     }
+    
+    powerup.type = loc.type;
+    
+    // Add floating animation - FIXED: Keep powerup at consistent height
+    this.tweens.add({
+      targets: powerup,
+      y: loc.y - 20,
+      duration: 1500,
+      yoyo: true,
+      repeat: -1
+    });
+    
+    // Add rotation
+    this.tweens.add({
+      targets: powerup,
+      rotation: Math.PI * 2,
+      duration: 2000,
+      repeat: -1
+    });
+    
+    this.powerups.add(powerup);
+  });
+}
+  
+   reachCheckpoint(player, checkpoint) {
+    if (!checkpoint.active) return; // CHANGED: Check active instead of checkpointReached flag
+    
+    // Save checkpoint position
+    this.lastCheckpoint = { x: checkpoint.position.x, y: checkpoint.position.y };
+    
+    // Visual effect
+    checkpoint.setTint(0xffff00);
+    this.cameras.main.flash(500, 0, 255, 255);
+    
+    // Show message
+    const checkpointText = this.add.text(
+      checkpoint.x,
+      checkpoint.y - 80,
+      'Checkpoint Reached!',
+      {
+        font: '20px Arial',
+        fill: '#FFFFFF',
+        stroke: '#000000',
+        strokeThickness: 3
+      }
+    ).setOrigin(0.5);
+    
+    this.tweens.add({
+      targets: checkpointText,
+      y: checkpointText.y - 50,
+      alpha: 0,
+      duration: 2000,
+      onComplete: () => checkpointText.destroy()
+    });
+    
+    // Disable checkpoint permanently
+    checkpoint.disableBody(true, true);
+    checkpoint.setActive(false);
+    checkpoint.setVisible(false);
+  
   }
   
   hitHazard(player, hazard) {
@@ -444,7 +486,7 @@ export class Level2Scene extends Phaser.Scene {
     
     // Take damage
     this.hazardImmune = true;
-    GameData.playerStats.health -= 30;
+    GameData.playerStats.health -= 10;
     this.healthText.setText(`Health: ${GameData.playerStats.health}`);
     
     // Visual effect
@@ -459,7 +501,7 @@ export class Level2Scene extends Phaser.Scene {
     const damageText = this.add.text(
       player.x,
       player.y - 50,
-      '-30',
+      '-10',
       {
         font: '24px Arial',
         fill: '#FF0000',
@@ -1316,39 +1358,37 @@ export class Level2Scene extends Phaser.Scene {
     this.checkLevelCompletion();
   }
   
-  createCoins() {
+   createCoins() {
     // Clear any existing coins first
     if (this.coins) {
       this.coins.clear(true, true);
     }
     
-    // Create coins distributed throughout the level - LOWER HEIGHT and BETTER PLACEMENT
+    // Create 50+ coins distributed throughout the EXTENDED level
     
-    // Base coins (easier to reach)
-    for (let i = 0; i < Math.floor(this.coinsNeeded * 0.6); i++) {
-      // Space coins throughout the level at lower heights
-      const x = 300 + (i * 120) + Phaser.Math.Between(-20, 20);
-      const y = this.groundY - Phaser.Math.Between(50, 120); // LOWER HEIGHT
+    // Base coins spread across entire level (30 coins)
+    for (let i = 0; i < 30; i++) {
+      const x = 300 + (i * 350) + Phaser.Math.Between(-30, 30); // Spread across 10500 units
+      const y = this.groundY - Phaser.Math.Between(50, 120);
       
       const coin = new Coin(this, x, y);
       this.coins.add(coin);
     }
     
-    // Platform coins (medium difficulty)
-    const platformCoins = Math.floor(this.coinsNeeded * 0.3);
+    // Platform coins (15 coins)
+    const platformCoins = 15;
     
-    // Wait for platforms to be created first
     if (!this.platformsCreated) {
       this.time.delayedCall(100, () => this.createPlatformCoins(platformCoins));
     } else {
       this.createPlatformCoins(platformCoins);
     }
     
-    // Special pattern coins (higher challenge)
-    const patternCount = Math.floor(this.coinsNeeded * 0.1);
+    // Special pattern coins (10 coins)
+    const patternCount = 10;
     this.createPatternCoins(patternCount);
     
-    console.log(`Created base coins for collection`);
+    console.log(`Created coins for extended level - need ${this.coinsToComplete} to complete`);
   }
   
   createPlatformCoins(count) {
@@ -1503,6 +1543,27 @@ export class Level2Scene extends Phaser.Scene {
   collectCoin(player, coin) {
     // Prevent double collection
     if (coin.collected) return;
+     try {
+      if (this.sound && this.sound.context) {
+        const audioContext = this.sound.context;
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.3);
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.3);
+      }
+    } catch (error) {
+      console.log('Error playing coin sound:', error);
+    }
     
     // Collect the coin
     coin.collect();
