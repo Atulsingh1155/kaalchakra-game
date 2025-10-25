@@ -13,88 +13,102 @@ export class Level1Scene extends Phaser.Scene {
   }
   
   create() {
-    
-    GameData.playerStats.coins = 0;
-    GameData.playerStats.health = 100;
-    
-    
-    const worldWidth = 22500; 
-    this.physics.world.setBounds(0, 0, worldWidth, 540);
-    
-   
-    this.backgrounds = [];
-    const numBackgrounds = Math.ceil(worldWidth / 960) + 2; 
-    for (let i = 0; i < numBackgrounds; i++) {
-      const bg = this.add.image(480 + (i * 960), 270, 'gameBackground');
-      this.backgrounds.push(bg);
-    }
-    
-    
-    this.groundY = 480;
-    
-    
-    this.leftWall = this.add.rectangle(-10, 270, 20, 540, 0x000000, 0);
-    this.physics.add.existing(this.leftWall, true);
-    
-    this.rightWall = this.add.rectangle(worldWidth + 10, 270, 20, 540, 0x000000, 0);
-    this.physics.add.existing(this.rightWall, true);
-    
-    // Mission text
-    this.missionText = this.add.text(480, 50, 'MISSION: Collect 50 coins to save your father!', {
-  font: '28px Arial',
-  fill: '#FFD700',
-  stroke: '#000000',
-  strokeThickness: 4,
-  align: 'center'
-}).setOrigin(0.5);
-this.missionText.setScrollFactor(0);
-    
-    // Player
-    this.player = new Aarav(this, 100, this.groundY);
-    this.cursors = this.input.keyboard.createCursorKeys();
-    
-    // FIXED: Add collision with both walls
-    this.physics.add.collider(this.player, this.leftWall);
-    this.physics.add.collider(this.player, this.rightWall);
-    
-    // Camera
-    this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-    this.cameras.main.setBounds(0, 0, worldWidth, 540);
-    
-    // Create enemies - FIXED: Better positioning
-    this.enemies = this.physics.add.group();
-    this.createEnemies();
-    
-    // Create coins on ground level
-    this.coins = this.physics.add.group();
-    this.createCoins();
-    
-    // UI
-    this.createUI();
-    
-    
-    // Add mobile controls for touch devices
-    const mobileControlsResult = createMobileControls(this);
-    if (mobileControlsResult) {
-      this.mobileControls = mobileControlsResult.controls;
-      this.mobileControlsContainer = mobileControlsResult.container;
-    }
-
-    // Collisions
-    this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
-    this.physics.add.overlap(this.player, this.enemies, this.hitByEnemy, null, this);
-    
-    // FIXED: Add collision for enemies with walls
-    this.physics.add.collider(this.enemies, this.leftWall);
-    this.physics.add.collider(this.enemies, this.rightWall);
-    
-    // Instructions
-    this.showInstructions();
-    
-    // Add fullscreen key for functionality only, but no visible button
-    this.fullscreenKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+  // FIXED: Reset all game data and ensure clean state
+  GameData.playerStats.coins = 0;
+  GameData.playerStats.health = 100;
+  GameData.playerStats.currentLevel = 1;
+  
+  // FIXED: Reset level-specific flags
+  this.coinsCollected = 0;
+  this.coinsNeeded = 50;
+  this.levelComplete = false;
+  this.damageTime = 0;
+  
+  const worldWidth = 22500; 
+  this.physics.world.setBounds(0, 0, worldWidth, 540);
+  
+  // Background creation
+  this.backgrounds = [];
+  const numBackgrounds = Math.ceil(worldWidth / 960) + 2; 
+  for (let i = 0; i < numBackgrounds; i++) {
+    const bg = this.add.image(480 + (i * 960), 270, 'gameBackground');
+    this.backgrounds.push(bg);
   }
   
+  this.groundY = 480;
+  
+  // Wall creation
+  this.leftWall = this.add.rectangle(-10, 270, 20, 540, 0x000000, 0);
+  this.physics.add.existing(this.leftWall, true);
+  
+  this.rightWall = this.add.rectangle(worldWidth + 10, 270, 20, 540, 0x000000, 0);
+  this.physics.add.existing(this.rightWall, true);
+  
+  // Mission text
+  this.missionText = this.add.text(480, 50, 'MISSION: Collect 50 coins to save your father!', {
+    font: '28px Arial',
+    fill: '#FFD700',
+    stroke: '#000000',
+    strokeThickness: 4,
+    align: 'center'
+  }).setOrigin(0.5);
+  this.missionText.setScrollFactor(0);
+  
+  // FIXED: Create player with fresh state
+  this.player = new Aarav(this, 100, this.groundY);
+  
+  // FIXED: Ensure player is properly initialized
+  this.player.setActive(true);
+  this.player.setVisible(true);
+  this.player.body.moves = true;
+  this.player.body.setEnable(true);
+  
+  // FIXED: Create controls after player is created
+  this.cursors = this.input.keyboard.createCursorKeys();
+  
+  // FIXED: Add collision with both walls
+  this.physics.add.collider(this.player, this.leftWall);
+  this.physics.add.collider(this.player, this.rightWall);
+  
+  // Camera
+  this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
+  this.cameras.main.setBounds(0, 0, worldWidth, 540);
+  
+  // Create enemies - FIXED: Better positioning
+  this.enemies = this.physics.add.group();
+  this.createEnemies();
+  
+  // Create coins on ground level
+  this.coins = this.physics.add.group();
+  this.createCoins();
+  
+  // UI
+  this.createUI();
+  
+  // Add mobile controls for touch devices
+  const mobileControlsResult = createMobileControls(this);
+  if (mobileControlsResult) {
+    this.mobileControls = mobileControlsResult.controls;
+    this.mobileControlsContainer = mobileControlsResult.container;
+  }
+  
+  // FIXED: Collisions - ensure they're set up after all objects are created
+  this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
+  this.physics.add.overlap(this.player, this.enemies, this.hitByEnemy, null, this);
+  
+  // FIXED: Add collision for enemies with walls
+  this.physics.add.collider(this.enemies, this.leftWall);
+  this.physics.add.collider(this.enemies, this.rightWall);
+  
+  // Instructions
+  this.showInstructions();
+  
+  // Add fullscreen key for functionality only, but no visible button
+  this.fullscreenKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+  
+  // FIXED: Add camera fade-in for smooth transition
+  this.cameras.main.fadeIn(1000, 0, 0, 0);
+}
   showInstructions() {
     this.instructionText = this.add.text(480, 150, [
       "Use ARROW KEYS to move",

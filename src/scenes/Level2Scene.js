@@ -53,7 +53,7 @@ export class Level2Scene extends Phaser.Scene {
     
     // Multiple backgrounds with new game_bg2
     this.backgrounds = [];
-    for (let i = 0; i < 15; i++) {
+    for (let i = 0; i < 16; i++) {
       const bg = this.add.image(480 + (i * 960), 270, 'game_bg2');
       this.backgrounds.push(bg);
     }
@@ -341,22 +341,23 @@ export class Level2Scene extends Phaser.Scene {
     const warningSign = this.add.text(loc.x, loc.y - 40, '⚠️', { fontSize: '24px' }).setOrigin(0.5);
   });
 }
-   createCheckpoints() {
+  createCheckpoints() {
   // Add checkpoints throughout the EXTENDED level
   const checkpointLocations = [
-    { x: 1000, y: this.groundY - 50 },
-    { x: 2000, y: this.groundY - 50 },
-    { x: 3000, y: this.groundY - 50 },
-    { x: 4000, y: this.groundY - 50 },
-    { x: 5000, y: this.groundY - 50 },
-    { x: 6000, y: this.groundY - 50 },
-    { x: 7000, y: this.groundY - 50 },
-    { x: 8000, y: this.groundY - 50 },
-    { x: 9000, y: this.groundY - 50 },
-    { x: 10000, y: this.groundY - 50 }
+    { x: 1000, y: this.groundY - 150 },
+    { x: 2000, y: this.groundY - 150 },
+    { x: 3000, y: this.groundY - 150 },
+    { x: 4000, y: this.groundY - 150 },
+    { x: 5000, y: this.groundY - 150 },
+    { x: 6000, y: this.groundY - 150 },
+    { x: 7000, y: this.groundY - 150 },
+    { x: 8000, y: this.groundY - 150 },
+    { x: 9000, y: this.groundY - 150 },
+    { x: 10000, y: this.groundY - 150 }
   ];
   
   checkpointLocations.forEach(loc => {
+    // SIMPLE: Create checkpoint just like a coin - no complex positioning
     const checkpoint = this.physics.add.sprite(loc.x, loc.y, 'coin');
     checkpoint.setScale(1.2);
     checkpoint.setTint(0x00ffff);
@@ -368,19 +369,17 @@ export class Level2Scene extends Phaser.Scene {
     checkpoint.body.setSize(40, 40);
     checkpoint.body.setAllowGravity(false);
     checkpoint.body.setImmovable(true);
+    checkpoint.body.moves = false; // IMPORTANT: Keep it completely still
     
-    // Add visual effect - FIXED: Animate the checkpoint sprite itself, not a separate circle
+    // SIMPLE ANIMATION: Only a tiny movement like your coins
     this.tweens.add({
       targets: checkpoint,
-      y: loc.y - 20,
-      duration: 1500,
+      y: loc.y - 10, // Only move 10 pixels up and down
+      duration: 2000,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut'
     });
-    
-    // REMOVED: The duplicate glow circle that was creating the second visual
-    // No longer creating a separate circle here
     
     this.checkpoints.add(checkpoint);
   });
@@ -400,12 +399,14 @@ export class Level2Scene extends Phaser.Scene {
   ];
   
   powerupLocations.forEach(loc => {
+    const floatCenter = loc.y - 10;
     const powerup = this.physics.add.sprite(loc.x, loc.y, 'fire_ball');
     powerup.setScale(0.5);
     
     // FIXED: Disable gravity on powerups
     powerup.body.setAllowGravity(false);
     powerup.body.setImmovable(true);
+    powerup.body.moves = false;
     
     // Color based on type
     switch (loc.type) {
@@ -425,10 +426,11 @@ export class Level2Scene extends Phaser.Scene {
     // Add floating animation - FIXED: Keep powerup at consistent height
     this.tweens.add({
       targets: powerup,
-      y: loc.y - 20,
+      y: floatCenter - 10,
       duration: 1500,
       yoyo: true,
-      repeat: -1
+      repeat: -1,
+      ease: 'Sine.easeInOut'
     });
     
     // Add rotation
@@ -1796,6 +1798,16 @@ export class Level2Scene extends Phaser.Scene {
     // Destroy all timers
     if (this.enemySpawnTimer) this.enemySpawnTimer.destroy();
     this.time.removeAllEvents();
+
+    // FIXED: Properly clean up background images
+    if (this.backgrounds && this.backgrounds.length > 0) {
+      this.backgrounds.forEach(bg => {
+        if (bg && !bg.destroyed) {
+          bg.destroy();
+        }
+      });
+      this.backgrounds = [];
+    }
     
     // Properly destroy all UI elements
     if (this.coinText) this.coinText.destroy();
@@ -1817,6 +1829,44 @@ export class Level2Scene extends Phaser.Scene {
     if (this.powerMeterFill && !this.powerMeterFill.destroyed) this.powerMeterFill.clear();
     if (this.powerMeterBg && !this.powerMeterBg.destroyed) this.powerMeterBg.clear();
     
+
+     // FIXED: Clean up groups properly
+    if (this.coins) {
+      this.coins.clear(true, true);
+      this.coins = null;
+    }
+    if (this.enemies) {
+      this.enemies.clear(true, true);
+      this.enemies = null;
+    }
+    if (this.enemiesLeft) {
+      this.enemiesLeft.clear(true, true);
+      this.enemiesLeft = null;
+    }
+    if (this.enemiesRight) {
+      this.enemiesRight.clear(true, true);
+      this.enemiesRight = null;
+    }
+    if (this.fireballs) {
+      this.fireballs.clear(true, true);
+      this.fireballs = null;
+    }
+    if (this.platforms) {
+      this.platforms.clear(true, true);
+      this.platforms = null;
+    }
+    if (this.hazards) {
+      this.hazards.clear(true, true);
+      this.hazards = null;
+    }
+    if (this.checkpoints) {
+      this.checkpoints.clear(true, true);
+      this.checkpoints = null;
+    }
+    if (this.powerups) {
+      this.powerups.clear(true, true);
+      this.powerups = null;
+    }
     // Nullify all references to UI elements
     this.coinText = null;
     this.distanceText = null;
@@ -1833,95 +1883,289 @@ export class Level2Scene extends Phaser.Scene {
     this.reticle = null;
     this.reticleDirection = null;
     this.storyText = null;
+
+    this.backgrounds = null;
   }
   
-  completeLevel() {
-    if (this.levelComplete) return;
-    this.levelComplete = true;
-    
-    // Stop enemy spawning
-    if (this.enemySpawnTimer) {
-      this.enemySpawnTimer.destroy();
+ completeLevel() {
+  if (this.levelComplete) return;
+  this.levelComplete = true;
+  
+  // Stop enemy spawning
+  if (this.enemySpawnTimer) {
+    this.enemySpawnTimer.destroy();
+  }
+  
+  // Freeze player and enemies
+  this.player.setVelocity(0, 0);
+  this.enemies.getChildren().forEach(enemy => {
+    enemy.setVelocity(0, 0);
+  });
+  
+  // Create overlay
+  const overlay = this.add.rectangle(
+    this.cameras.main.scrollX + 480,
+    270,
+    960,
+    540,
+    0x000000,
+    0.7
+  ).setScrollFactor(1);
+  
+  // Add congratulations text
+  const victoryText = this.add.text(
+    this.cameras.main.scrollX + 480,
+    200,
+    'LEVEL COMPLETE!',
+    {
+      font: '48px Arial',
+      fill: '#00FF00',
+      stroke: '#000000',
+      strokeThickness: 4,
+      align: 'center'
     }
+  ).setOrigin(0.5).setScrollFactor(1);
+  
+  // Add dadi with congratulations
+  this.time.delayedCall(2000, () => {
+    const dadi = new Dadi(this, this.player.x + 150, this.groundY);
+    dadi.appear();
     
-    // Freeze player and enemies
-    this.player.setVelocity(0, 0);
-    this.enemies.getChildren().forEach(enemy => {
-      enemy.setVelocity(0, 0);
-    });
-    
-    // Create overlay
-    const overlay = this.add.rectangle(
+    const messageText = this.add.text(
       this.cameras.main.scrollX + 480,
-      270,
-      960,
-      540,
-      0x000000,
-      0.7
-    ).setScrollFactor(1);
-    
-    // Add congratulations text
-    const victoryText = this.add.text(
-      this.cameras.main.scrollX + 480,
-      200,
-      'LEVEL COMPLETE!',
+      300,
+      'Dadi: Well done, Aarav! You broke the village curse!\nNow we must continue our journey to save your father!',
       {
-        font: '48px Arial',
-        fill: '#00FF00',
+        font: '24px Arial',
+        fill: '#FFFFFF',
         stroke: '#000000',
-        strokeThickness: 4,
-        align: 'center'
+        strokeThickness: 2,
+        align: 'center',
+        wordWrap: { width: 600 }
       }
     ).setOrigin(0.5).setScrollFactor(1);
     
-    // Add dadi with congratulations
-    this.time.delayedCall(2000, () => {
-      const dadi = new Dadi(this, this.player.x + 150, this.groundY);
-      dadi.appear();
+    // MODIFIED: Continue button that shows construction message
+    const continueButton = this.add.text(
+      this.cameras.main.scrollX + 480,
+      400,
+      'Continue to Level 3',
+      {
+        font: '32px Arial',
+        fill: '#FFD700',
+        backgroundColor: '#000000AA',
+        padding: { x: 16, y: 8 }
+      }
+    ).setOrigin(0.5).setScrollFactor(1).setInteractive();
+    
+    // Add glow effect to button
+    this.tweens.add({
+      targets: continueButton,
+      alpha: 0.7,
+      duration: 500,
+      yoyo: true,
+      repeat: -1
+    });
+    
+    // MODIFIED: Click event shows construction message
+    continueButton.on('pointerdown', () => {
+      // Stop the glow animation
+      this.tweens.killTweensOf(continueButton);
+      continueButton.setAlpha(1);
       
-      const messageText = this.add.text(
-        this.cameras.main.scrollX + 480,
-        300,
-        'Dadi: Well done, Aarav! You broke the village curse!\nNow we must continue our journey to save your father!',
-        {
-          font: '24px Arial',
-          fill: '#FFFFFF',
-          stroke: '#000000',
-          strokeThickness: 2,
-          align: 'center',
-          wordWrap: { width: 600 }
-        }
-      ).setOrigin(0.5).setScrollFactor(1);
+      // Hide the continue button
+      continueButton.setVisible(false);
       
-      // Continue button
-      const continueButton = this.add.text(
-        this.cameras.main.scrollX + 480,
-        400,
-        'Continue to Level 3',
-        {
-          font: '32px Arial',
-          fill: '#FFD700',
-          backgroundColor: '#000000AA',
-          padding: { x: 16, y: 8 }
-        }
-      ).setOrigin(0.5).setScrollFactor(1).setInteractive();
-      
-      // Add glow effect to button
-      this.tweens.add({
-        targets: continueButton,
-        alpha: 0.7,
-        duration: 500,
-        yoyo: true,
-        repeat: -1
-      });
-      
-      // Click event
-      continueButton.on('pointerdown', () => {
-        GameData.playerStats.currentLevel = 3;
-        this.scene.start('Level3Scene');
-      });
+      // Show construction message
+      this.showLevel3ConstructionMessage();
+    });
+  });
+}
+
+// NEW METHOD: Show Level 3 under construction message
+// NEW METHOD: Show Level 3 under construction message
+showLevel3ConstructionMessage() {
+  // Create construction overlay with gradient background
+  const constructionOverlay = this.add.rectangle(
+    this.cameras.main.scrollX + 480,
+    270,
+    900,
+    400,
+    0x1a1a2e,
+    0.95
+  ).setScrollFactor(1);
+  
+  // Add decorative border
+  const border = this.add.graphics().setScrollFactor(1);
+  border.lineStyle(4, 0xFFD700);
+  border.strokeRoundedRect(
+    this.cameras.main.scrollX + 30,
+    70,
+    900,
+    400,
+    10
+  );
+  
+  // Construction icon with animation
+  const constructionIcon = this.add.text(
+    this.cameras.main.scrollX + 480,
+    150,
+    '🚧',
+    {
+      font: '64px Arial'
+    }
+  ).setOrigin(0.5).setScrollFactor(1);
+  
+  // Animate the construction icon
+  this.tweens.add({
+    targets: constructionIcon,
+    scaleX: 1.2,
+    scaleY: 1.2,
+    duration: 1000,
+    yoyo: true,
+    repeat: -1,
+    ease: 'Sine.easeInOut'
+  });
+  
+  // Main construction message
+  const constructionTitle = this.add.text(
+    this.cameras.main.scrollX + 480,
+    220,
+    'LEVEL 3 UNDER CONSTRUCTION',
+    {
+      font: '36px Arial',
+      fill: '#FFD700',
+      stroke: '#000000',
+      strokeThickness: 3,
+      align: 'center'
+    }
+  ).setOrigin(0.5).setScrollFactor(1);
+  
+  // Friendly message from Dadi
+  const friendlyMessage = this.add.text(
+    this.cameras.main.scrollX + 480,
+    280,
+    'Dadi: "Be patient, dear Aarav!\nThe village elders are still preparing the next temple.\nFor now, rest and practice your skills!"',
+    {
+      font: '20px Arial',
+      fill: '#FFFFFF',
+      stroke: '#000000',
+      strokeThickness: 2,
+      align: 'center',
+      wordWrap: { width: 700 },
+      lineSpacing: 8
+    }
+  ).setOrigin(0.5).setScrollFactor(1);
+  
+  // Encouraging subtitle
+  const subtitle = this.add.text(
+    this.cameras.main.scrollX + 480,
+    350,
+    'Thank you for playing! More adventures await...',
+    {
+      font: '18px Arial',
+      fill: '#CCCCCC',
+      fontStyle: 'italic',
+      align: 'center'
+    }
+  ).setOrigin(0.5).setScrollFactor(1);
+  
+  // Sparkle effects around the message
+  for (let i = 0; i < 12; i++) {
+    const sparkle = this.add.circle(
+      this.cameras.main.scrollX + 480 + Phaser.Math.Between(-400, 400),
+      270 + Phaser.Math.Between(-150, 150),
+      Phaser.Math.Between(2, 5),
+      0xFFD700,
+      0.8
+    ).setScrollFactor(1);
+    
+    this.tweens.add({
+      targets: sparkle,
+      alpha: 0,
+      scaleX: 2,
+      scaleY: 2,
+      duration: Phaser.Math.Between(1500, 3000),
+      delay: i * 200,
+      onComplete: () => sparkle.destroy()
     });
   }
+  
+  // MODIFIED: Return to Home Screen button
+  const returnButton = this.add.text(
+    this.cameras.main.scrollX + 480,
+    420,
+    'Return to Home Screen',
+    {
+      font: '28px Arial',
+      fill: '#00FF00',
+      backgroundColor: '#004400AA',
+      padding: { x: 20, y: 10 },
+      stroke: '#000000',
+      strokeThickness: 2
+    }
+  ).setOrigin(0.5).setScrollFactor(1).setInteractive();
+  
+  // Button hover effects
+  returnButton.on('pointerover', () => {
+    returnButton.setScale(1.05);
+    returnButton.setBackgroundColor('#006600AA');
+  });
+  
+  returnButton.on('pointerout', () => {
+    returnButton.setScale(1);
+    returnButton.setBackgroundColor('#004400AA');
+  });
+  
+  // MODIFIED: Button click animation and redirect to home screen
+ returnButton.on('pointerdown', () => {
+  // Button press animation
+  this.tweens.add({
+    targets: returnButton,
+    scaleX: 0.95,
+    scaleY: 0.95,
+    duration: 100,
+    yoyo: true,
+    onComplete: () => {
+      // Fade out effect
+      this.cameras.main.fadeOut(1000, 0, 0, 0);
+      
+      // Wait for fade then redirect
+      this.time.delayedCall(1000, () => {
+        // FIXED: Proper cleanup before switching scenes
+        this.cleanup();
+        
+        // Reset player stats for fresh start
+        GameData.playerStats.health = 100;
+        GameData.playerStats.coins = 0;
+        GameData.playerStats.currentLevel = 1;
+        
+        // FIXED: Stop current scene properly before starting new one
+        this.scene.stop('Level2Scene');
+        this.scene.start('PreloadScene');
+      });
+    }
+  });
+});
+  
+  // Add entrance animation for the whole message
+  const elementsToAnimate = [
+    constructionOverlay, border, constructionIcon, 
+    constructionTitle, friendlyMessage, subtitle, returnButton
+  ];
+  
+  elementsToAnimate.forEach((element, index) => {
+    element.setAlpha(0);
+    this.tweens.add({
+      targets: element,
+      alpha: 1,
+      y: element.y + 20,
+      duration: 600,
+      delay: index * 100,
+      ease: 'Back.easeOut'
+    });
+  });
+}
   
  update() {
   if (this.levelComplete) return;

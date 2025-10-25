@@ -6,7 +6,7 @@ export class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setScale(0.3); // Reasonable size
     this.speed = speed;
     this.baseSpeed = speed;
-    this.body.setSize(80, 150);
+    this.body.setSize(150, 300);
     this.groundLevel = 480;
     this.alwaysChase = false;
     this.preferredDistance = 100; // Distance to maintain behind player
