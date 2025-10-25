@@ -15,7 +15,7 @@
 //     default: 'arcade',
 //     arcade: { 
 //       gravity: { y: 600 }, 
-//       debug: true, // Disable debug for cleaner fullscreen view
+//       debug: false, // Disable debug for cleaner fullscreen view
 //     }
 //   },
 //   // Add input configuration for touch support
@@ -38,8 +38,16 @@ export const GameConfig = {
     width: 960,
     height: 540,
     fullscreenTarget: 'game-container',
-    // Add orientation lock
-    orientation: Phaser.Scale.LANDSCAPE
+    orientation: Phaser.Scale.LANDSCAPE, // Force landscape orientation
+    expandParent: true, // Make sure game expands to parent size
+    min: {
+      width: 480,
+      height: 270
+    },
+    max: {
+      width: 1920,
+      height: 1080
+    }
   },
   physics: {
     default: 'arcade',

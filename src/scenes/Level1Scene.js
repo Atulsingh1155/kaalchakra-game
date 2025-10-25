@@ -18,6 +18,7 @@ export class Level1Scene extends Phaser.Scene {
   GameData.playerStats.health = 100;
   GameData.playerStats.currentLevel = 1;
   
+  
   // FIXED: Reset level-specific flags
   this.coinsCollected = 0;
   this.coinsNeeded = 50;

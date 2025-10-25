@@ -63,14 +63,13 @@ const scenes = [
 //   }
 // }
 
+// window.addEventListener('load', () => {
+//   new Game();
+// });
+
 class Game extends Phaser.Game {
   constructor() {
-    super({ 
-      ...GameConfig, 
-      scene: scenes
-    });
-
-    // Request fullscreen and lock orientation on mobile
+    super({ ...GameConfig, scene: scenes });
     this.setupMobileFullscreen();
   }
 
@@ -78,33 +77,52 @@ class Game extends Phaser.Game {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     
     if (isMobile) {
-      const enterFullscreen = () => {
+      const enterFullscreen = async () => {
         const gameContainer = document.getElementById('game-container');
         
-        // Request fullscreen
-        if (gameContainer.requestFullscreen) {
-          gameContainer.requestFullscreen();
-        } else if (gameContainer.webkitRequestFullscreen) {
-          gameContainer.webkitRequestFullscreen();
-        } else if (gameContainer.mozRequestFullScreen) {
-          gameContainer.mozRequestFullScreen();
-        }
-        
-        // Lock orientation to landscape
-        if (screen.orientation && screen.orientation.lock) {
-          screen.orientation.lock('landscape').catch(err => {
-            console.log('Orientation lock failed:', err);
+        try {
+          // Request fullscreen
+          if (document.fullscreenEnabled) {
+            await gameContainer.requestFullscreen();
+          } else if (document.webkitFullscreenEnabled) {
+            await gameContainer.webkitRequestFullscreen();
+          }
+
+          // Lock orientation to landscape
+          if (screen.orientation && screen.orientation.lock) {
+            await screen.orientation.lock('landscape');
+          }
+
+          // Handle orientation changes
+          window.addEventListener('orientationchange', () => {
+            if (window.orientation === 90 || window.orientation === -90) {
+              document.getElementById('rotate-message').style.display = 'none';
+            } else {
+              document.getElementById('rotate-message').style.display = 'flex';
+            }
           });
+
+          // Handle resize
+          window.addEventListener('resize', () => {
+            if (this.scale) {
+              this.scale.refresh();
+            }
+          });
+
+        } catch (err) {
+          console.log('Fullscreen/Orientation setup error:', err);
         }
-        
-        // Remove listeners after first interaction
-        window.removeEventListener('pointerdown', enterFullscreen);
-        window.removeEventListener('touchstart', enterFullscreen);
       };
-      
-      // Wait for user interaction (required by browsers)
-      window.addEventListener('pointerdown', enterFullscreen, { once: true });
-      window.addEventListener('touchstart', enterFullscreen, { once: true });
+
+      // Listen for first interaction
+      const startGame = () => {
+        enterFullscreen();
+        window.removeEventListener('pointerdown', startGame);
+        window.removeEventListener('touchstart', startGame);
+      };
+
+      window.addEventListener('pointerdown', startGame);
+      window.addEventListener('touchstart', startGame);
     }
   }
 }
