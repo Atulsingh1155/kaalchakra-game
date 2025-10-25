@@ -74,6 +74,9 @@
       overflow: hidden;
       background: #000;
       touch-action: none;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
     }
     
     body {
@@ -116,13 +119,28 @@
         display: none;
       }
     }
+
+    /* iOS PWA fullscreen */
+    @supports (padding: max(0px)) {
+      body {
+        padding-left: min(0vw, env(safe-area-inset-left));
+        padding-right: min(0vw, env(safe-area-inset-right));
+        padding-top: min(0vh, env(safe-area-inset-top));
+        padding-bottom: min(0vh, env(safe-area-inset-bottom));
+      }
+    }
   </style>
+  <!-- Add PWA meta tags -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
   <div id="game-container"></div>
   <div id="rotate-message">
     Please rotate your device to landscape mode for the best experience
   </div>
-  <script type="module" src="/src/main.js"></script>
+  <!-- Change src to use root path -->
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>
