@@ -314,7 +314,6 @@
 //     shootButton: shootButton
 //   };
 // }
-
 export function createMobileControls(scene, options = {}) {
   // Only create controls on touch devices
   if (!scene.sys.game.device.input.touch) return null;
@@ -395,9 +394,6 @@ export function createMobileControls(scene, options = {}) {
   // Track active touches
   const activeTouches = new Map();
   
-  // Track jump timer to prevent conflicts
-  let jumpTimer = null;
-  
   // LEFT ZONE
   leftZone.on('pointerdown', (pointer) => {
     controls.left = true;
@@ -428,27 +424,19 @@ export function createMobileControls(scene, options = {}) {
     }
   });
   
-  // CENTER ZONE (JUMP) - FIXED: Removed auto-release timer
+  // CENTER ZONE (JUMP) - COMPLETELY FIXED
   centerZone.on('pointerdown', (pointer) => {
-    // Only trigger jump if not already active for this pointer
-    if (activeTouches.get(pointer.id) !== 'up') {
-      controls.up = true;
-      activeTouches.set(pointer.id, 'up');
-      centerIndicator.setAlpha(0.3);
-      
-      // FIXED: Manual release after short delay to trigger jump, then reset
-      // This ensures the jump is registered but control is released
-      if (jumpTimer) {
-        scene.time.removeEvent(jumpTimer);
-      }
-      
-      jumpTimer = scene.time.delayedCall(100, () => {
-        // Reset the control to allow next jump
-        controls.up = false;
-        centerIndicator.setAlpha(0.1);
-        jumpTimer = null;
-      });
-    }
+    // Set jump to true
+    controls.up = true;
+    activeTouches.set(pointer.id, 'up');
+    centerIndicator.setAlpha(0.3);
+    
+    // CRITICAL: Keep it true long enough for physics to register (1 frame is enough)
+    // Then auto-reset to allow next jump
+    scene.time.delayedCall(50, () => {
+      controls.up = false;
+      centerIndicator.setAlpha(0.1);
+    });
   });
   
   centerZone.on('pointerup', (pointer) => {
@@ -456,12 +444,6 @@ export function createMobileControls(scene, options = {}) {
       controls.up = false;
       activeTouches.delete(pointer.id);
       centerIndicator.setAlpha(0.1);
-      
-      // Cancel the timer if pointer is released early
-      if (jumpTimer) {
-        scene.time.removeEvent(jumpTimer);
-        jumpTimer = null;
-      }
     }
   });
   
@@ -512,11 +494,6 @@ export function createMobileControls(scene, options = {}) {
     } else if (touchType === 'up') {
       controls.up = false;
       centerIndicator.setAlpha(0.1);
-      // Cancel jump timer if exists
-      if (jumpTimer) {
-        scene.time.removeEvent(jumpTimer);
-        jumpTimer = null;
-      }
     } else if (touchType === 'shoot') {
       controls.shoot = false;
       if (shootButton) shootButton.setStyle({ backgroundColor: '#FF660099' });
@@ -538,10 +515,6 @@ export function createMobileControls(scene, options = {}) {
     } else if (touchType === 'up') {
       controls.up = false;
       centerIndicator.setAlpha(0.1);
-      if (jumpTimer) {
-        scene.time.removeEvent(jumpTimer);
-        jumpTimer = null;
-      }
     } else if (touchType === 'shoot') {
       controls.shoot = false;
       if (shootButton) shootButton.setStyle({ backgroundColor: '#FF660099' });
@@ -561,10 +534,6 @@ export function createMobileControls(scene, options = {}) {
     rightIndicator.setAlpha(0.1);
     centerIndicator.setAlpha(0.1);
     if (shootButton) shootButton.setStyle({ backgroundColor: '#FF660099' });
-    if (jumpTimer) {
-      scene.time.removeEvent(jumpTimer);
-      jumpTimer = null;
-    }
   });
   
   // Reset all controls when scene loses focus
@@ -578,10 +547,6 @@ export function createMobileControls(scene, options = {}) {
     rightIndicator.setAlpha(0.1);
     centerIndicator.setAlpha(0.1);
     if (shootButton) shootButton.setStyle({ backgroundColor: '#FF660099' });
-    if (jumpTimer) {
-      scene.time.removeEvent(jumpTimer);
-      jumpTimer = null;
-    }
   });
   
   // Cleanup on scene shutdown
@@ -590,10 +555,6 @@ export function createMobileControls(scene, options = {}) {
     scene.input.off('pointerupoutside');
     scene.input.off('gameout');
     activeTouches.clear();
-    if (jumpTimer) {
-      scene.time.removeEvent(jumpTimer);
-      jumpTimer = null;
-    }
   });
   
   // Return controls and all UI elements for cleanup
