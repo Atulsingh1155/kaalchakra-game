@@ -129,69 +129,74 @@ export class Level2Scene extends Phaser.Scene {
     
     // UI elements
     this.createUI();
-    
-    // Add mobile controls
-    const mobileControlsResult = createMobileControls(this);
+
+    const mobileControlsResult = createMobileControls(this, { includeShoot: true });
     if (mobileControlsResult) {
       this.mobileControls = mobileControlsResult.controls;
       this.mobileControlsContainer = mobileControlsResult.container;
-      
-      // Add fire button for mobile
-      const fireButtonStyle = {
-        fontSize: '32px',
-        backgroundColor: '#FF000080',
-        padding: { x: 20, y: 15 },
-        fixedWidth: 80,
-        fixedHeight: 80,
-        align: 'center'
-      };
-      
-      const fireButton = this.add.text(660, 450, '🔥', fireButtonStyle)
-        .setOrigin(0.5)
-        .setScrollFactor(0)
-        .setInteractive();
-      
-      fireButton.on('pointerdown', () => {
-        if (!this.targetingMode) {
-          // Direct fire in direction player is facing
-          const worldPoint = this.playerFacingRight ? 
-              { x: this.player.x + 200, y: this.player.y - 30 } : 
-              { x: this.player.x - 200, y: this.player.y - 30 };
-              
-          // Replace worldToScreen with the correct methods
-   const screenX = (worldPoint.x - this.cameras.main.scrollX);
-    const screenY = (worldPoint.y - this.cameras.main.scrollY);
-    
-    const mockPointer = {
-      x: screenX,
-      y: screenY
-    };
-    this.shootFireballAtPointer(mockPointer);
-  }
-});
-      
-      // Add targeting mode button
-      const targetButtonStyle = {
-        fontSize: '32px',
-        backgroundColor: '#0000FF80',
-        padding: { x: 20, y: 15 },
-        fixedWidth: 80,
-        fixedHeight: 80,
-        align: 'center'
-      };
-      
-      const targetButton = this.add.text(560, 450, '🎯', targetButtonStyle)
-        .setOrigin(0.5)
-        .setScrollFactor(0)
-        .setInteractive();
-      
-      targetButton.on('pointerdown', () => {
-        this.toggleTargetingMode();
-      });
-      
-      this.mobileControlsContainer.add(fireButton);
-      this.mobileControlsContainer.add(targetButton);
     }
+    // Add mobile controls
+//     const mobileControlsResult = createMobileControls(this);
+//     if (mobileControlsResult) {
+//       this.mobileControls = mobileControlsResult.controls;
+//       this.mobileControlsContainer = mobileControlsResult.container;
+      
+//       // Add fire button for mobile
+//       const fireButtonStyle = {
+//         fontSize: '32px',
+//         backgroundColor: '#FF000080',
+//         padding: { x: 20, y: 15 },
+//         fixedWidth: 80,
+//         fixedHeight: 80,
+//         align: 'center'
+//       };
+      
+//       const fireButton = this.add.text(660, 450, '🔥', fireButtonStyle)
+//         .setOrigin(0.5)
+//         .setScrollFactor(0)
+//         .setInteractive();
+      
+//       fireButton.on('pointerdown', () => {
+//         if (!this.targetingMode) {
+//           // Direct fire in direction player is facing
+//           const worldPoint = this.playerFacingRight ? 
+//               { x: this.player.x + 200, y: this.player.y - 30 } : 
+//               { x: this.player.x - 200, y: this.player.y - 30 };
+              
+//           // Replace worldToScreen with the correct methods
+//    const screenX = (worldPoint.x - this.cameras.main.scrollX);
+//     const screenY = (worldPoint.y - this.cameras.main.scrollY);
+    
+//     const mockPointer = {
+//       x: screenX,
+//       y: screenY
+//     };
+//     this.shootFireballAtPointer(mockPointer);
+//   }
+// });
+      
+//       // Add targeting mode button
+//       const targetButtonStyle = {
+//         fontSize: '32px',
+//         backgroundColor: '#0000FF80',
+//         padding: { x: 20, y: 15 },
+//         fixedWidth: 80,
+//         fixedHeight: 80,
+//         align: 'center'
+//       };
+      
+//       const targetButton = this.add.text(560, 450, '🎯', targetButtonStyle)
+//         .setOrigin(0.5)
+//         .setScrollFactor(0)
+//         .setInteractive();
+      
+//       targetButton.on('pointerdown', () => {
+//         this.toggleTargetingMode();
+//       });
+      
+//       this.mobileControlsContainer.add(fireButton);
+//       this.mobileControlsContainer.add(targetButton);
+//     }
     
     // Setup collisions
     this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
@@ -359,7 +364,7 @@ export class Level2Scene extends Phaser.Scene {
   checkpointLocations.forEach(loc => {
     // SIMPLE: Create checkpoint just like a coin - no complex positioning
     const checkpoint = this.physics.add.sprite(loc.x, loc.y, 'coin');
-    checkpoint.setScale(1.2);
+    checkpoint.setScale(0.05);
     checkpoint.setTint(0x00ffff);
     checkpoint.setAlpha(0.8);
     checkpoint.isCheckpoint = true;
@@ -2166,46 +2171,84 @@ showLevel3ConstructionMessage() {
     });
   });
 }
-  
- update() {
-  if (this.levelComplete) return;
-  
-  // Player movement
-  this.player.move(this.cursors, this.mobileControls);
-  
-  // Track player facing direction for shooting
-  if (this.player.body.velocity.x > 0) {
-    this.playerFacingRight = true;
-  } else if (this.player.body.velocity.x < 0) {
-    this.playerFacingRight = false;
-  }
-  
-  // Fire control with space key
-  if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-    if (this.targetingMode) {
-      // In targeting mode, shoot at reticle
+
+update() {
+    if (this.levelComplete) return;
+    
+    // Player movement
+    this.player.move(this.cursors, this.mobileControls);
+    
+    // Track player facing direction for shooting
+    if (this.player.body.velocity.x > 0) {
+      this.playerFacingRight = true;
+    } else if (this.player.body.velocity.x < 0) {
+      this.playerFacingRight = false;
+    }
+    
+    // Fire control with space key OR mobile shoot button
+    if (Phaser.Input.Keyboard.JustDown(this.spaceKey) || 
+        (this.mobileControls && this.mobileControls.shoot)) {
+      // Reset shoot control to prevent continuous firing
+      if (this.mobileControls) {
+        this.mobileControls.shoot = false;
+      }
+      
+      // FIXED: Shoot in the direction player is facing
+      const direction = this.player.flipX ? 1 : -1; // flipX true = facing right
+      const worldPoint = {
+        x: this.player.x + (direction * 200),
+        y: this.player.y - 30
+      };
+        
+      const screenX = (worldPoint.x - this.cameras.main.scrollX);
+      const screenY = (worldPoint.y - this.cameras.main.scrollY);
+      
       const mockPointer = {
-        x: this.reticle.x,
-        y: this.reticle.y
+        x: screenX,
+        y: screenY
       };
       this.shootFireballAtPointer(mockPointer);
-    } else {
-      // Direct shooting in facing direction
-      const worldPoint = this.playerFacingRight ? 
-        { x: this.player.x + 200, y: this.player.y - 30 } : 
-        { x: this.player.x - 200, y: this.player.y - 30 };
+    }
+  
+//  update() {
+//   if (this.levelComplete) return;
+  
+//   // Player movement
+//   this.player.move(this.cursors, this.mobileControls);
+  
+//   // Track player facing direction for shooting
+//   if (this.player.body.velocity.x > 0) {
+//     this.playerFacingRight = true;
+//   } else if (this.player.body.velocity.x < 0) {
+//     this.playerFacingRight = false;
+//   }
+  
+//   // Fire control with space key
+//   if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
+//     if (this.targetingMode) {
+//       // In targeting mode, shoot at reticle
+//       const mockPointer = {
+//         x: this.reticle.x,
+//         y: this.reticle.y
+//       };
+//       this.shootFireballAtPointer(mockPointer);
+//     } else {
+//       // Direct shooting in facing direction
+//       const worldPoint = this.playerFacingRight ? 
+//         { x: this.player.x + 200, y: this.player.y - 30 } : 
+//         { x: this.player.x - 200, y: this.player.y - 30 };
         
-       // Replace worldToScreen with the correct method
-   const screenX = (worldPoint.x - this.cameras.main.scrollX);
-   const screenY = (worldPoint.y - this.cameras.main.scrollY);
+//        // Replace worldToScreen with the correct method
+//    const screenX = (worldPoint.x - this.cameras.main.scrollX);
+//    const screenY = (worldPoint.y - this.cameras.main.scrollY);
     
-      const mockPointer = {
-      x: screenX,
-      y: screenY
-    };
-    this.shootFireballAtPointer(mockPointer);
-  }
-}
+//       const mockPointer = {
+//       x: screenX,
+//       y: screenY
+//     };
+//     this.shootFireballAtPointer(mockPointer);
+//   }
+// }
   
   // Update targeting reticle if active
   if (this.targetingMode) {

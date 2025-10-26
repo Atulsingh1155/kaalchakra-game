@@ -5,7 +5,7 @@ export class Coin extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
     
     // Keep your perfect scale and size - don't change these
-    this.setScale(.8);
+    this.setScale(.05);
     this.body.setSize(30, 30);
     
     // FIXED: Completely disable gravity and make coin immovable

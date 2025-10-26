@@ -87,7 +87,7 @@ export class Level1Scene extends Phaser.Scene {
   this.createUI();
   
   // Add mobile controls for touch devices
-  const mobileControlsResult = createMobileControls(this);
+  const mobileControlsResult = createMobileControls(this, { includeShoot: false });
   if (mobileControlsResult) {
     this.mobileControls = mobileControlsResult.controls;
     this.mobileControlsContainer = mobileControlsResult.container;
