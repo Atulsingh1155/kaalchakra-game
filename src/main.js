@@ -36,6 +36,37 @@ const scenes = [
   VictoryScene
 ];
 
+// class Game extends Phaser.Game {
+//   constructor() {
+//     super({ 
+//       ...GameConfig, 
+//       scene: scenes
+//     });
+
+//     // Automatically request fullscreen on game start
+//     this.requestFullscreenOnStart();
+//   }
+
+//   requestFullscreenOnStart() {
+//     const goFullscreen = () => {
+//       const gameContainer = document.getElementById('game-container');
+//       if (gameContainer && gameContainer.requestFullscreen) {
+//         gameContainer.requestFullscreen();
+//       }
+//       // Remove the listener after first call
+//       window.removeEventListener('pointerdown', goFullscreen);
+//       window.removeEventListener('touchstart', goFullscreen);
+//     };
+//     // Wait for user interaction (required by browsers)
+//     window.addEventListener('pointerdown', goFullscreen);
+//     window.addEventListener('touchstart', goFullscreen);
+//   }
+// }
+
+// window.addEventListener('load', () => {
+//   new Game();
+// });
+
 class Game extends Phaser.Game {
   constructor() {
     super({ 
@@ -43,23 +74,46 @@ class Game extends Phaser.Game {
       scene: scenes
     });
 
-    // Automatically request fullscreen on game start
+    // IMPROVED: Automatically request fullscreen on game start
     this.requestFullscreenOnStart();
   }
 
   requestFullscreenOnStart() {
     const goFullscreen = () => {
       const gameContainer = document.getElementById('game-container');
-      if (gameContainer && gameContainer.requestFullscreen) {
-        gameContainer.requestFullscreen();
+      
+      // Try different fullscreen methods for better compatibility
+      if (gameContainer) {
+        const requestFullscreen = 
+          gameContainer.requestFullscreen ||
+          gameContainer.webkitRequestFullscreen ||
+          gameContainer.mozRequestFullScreen ||
+          gameContainer.msRequestFullscreen;
+        
+        if (requestFullscreen) {
+          requestFullscreen.call(gameContainer).catch(err => {
+            console.log('Fullscreen request failed:', err);
+          });
+        }
       }
-      // Remove the listener after first call
+      
+      // Lock orientation to landscape on mobile
+      if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(err => {
+          console.log('Orientation lock not supported:', err);
+        });
+      }
+      
+      // Remove listeners after first call
       window.removeEventListener('pointerdown', goFullscreen);
       window.removeEventListener('touchstart', goFullscreen);
+      window.removeEventListener('click', goFullscreen);
     };
+    
     // Wait for user interaction (required by browsers)
-    window.addEventListener('pointerdown', goFullscreen);
-    window.addEventListener('touchstart', goFullscreen);
+    window.addEventListener('pointerdown', goFullscreen, { once: true });
+    window.addEventListener('touchstart', goFullscreen, { once: true });
+    window.addEventListener('click', goFullscreen, { once: true });
   }
 }
 
