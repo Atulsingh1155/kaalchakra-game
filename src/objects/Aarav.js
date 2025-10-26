@@ -244,7 +244,7 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
     
     // Set proper body size and ground level
     this.setScale(0.4);
-    this.setBounce(0.2);
+    this.setBounce(0.15);
     this.body.setSize(100, 300);
 
     // FIXED: Ground level - player's feet position (sprite center is at body center)
@@ -290,7 +290,7 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
     
     // Jump logic
     if (up && onGround) {
-      this.setVelocityY(-400);
+      this.setVelocityY(-430);
       this.isJumping = true;
     }
     

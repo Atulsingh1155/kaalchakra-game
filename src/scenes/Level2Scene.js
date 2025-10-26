@@ -47,6 +47,13 @@ export class Level2Scene extends Phaser.Scene {
     // IMPORTANT: Reset control flags when restarting
     this.levelComplete = false;
     this.chaseStarted = false; // Will be set to true after power grant sequence
+
+
+    // FIXED: Reset platform flag to ensure platforms are recreated
+    this.platformsCreated = false;
+    this.hazardImmune = false;
+
+
     // this.hazardImmune = false;
     // Extend world bounds for a larger level
     this.physics.world.setBounds(0, 0, 12000, 540);
@@ -64,6 +71,41 @@ export class Level2Scene extends Phaser.Scene {
     
     this.rightWall = this.add.rectangle(12010, 270, 20, 540, 0x000000, 0);
     this.physics.add.existing(this.rightWall, true);
+  // create() {
+  //   // Reset stats for level 2 - always start fresh
+  //   GameData.playerStats.health = 100;
+  //   GameData.playerStats.coins = 0;
+  //   GameData.playerStats.currentLevel = 2;
+  //   this.coinsCollected = 0;
+
+  //   // IMPORTANT: Reset control flags when restarting
+  //   this.levelComplete = false;
+  //   this.chaseStarted = false;
+    
+  //   // FIXED: Reset platform flag to ensure platforms are recreated
+  //   this.platformsCreated = false;
+  //   this.hazardImmune = false;
+    
+  //   // Extend world bounds for a larger level
+  //   this.physics.world.setBounds(0, 0, 12000, 540);
+    
+  //   // FIXED: Simple background system like Level 1 - no complex parallax
+  //   this.backgrounds = [];
+  //   const worldWidth = 12000;
+  //   const numBackgrounds = Math.ceil(worldWidth / 960) + 2; // Add extra for smooth scrolling
+    
+  //   for (let i = 0; i < numBackgrounds; i++) {
+  //     const bg = this.add.image(480 + (i * 960), 270, 'game_bg2');
+  //     bg.setScrollFactor(0.5); // Simple parallax - doesn't move backgrounds
+  //     this.backgrounds.push(bg);
+  //   }
+    
+  //   // Add walls to prevent player from going out of bounds
+  //   this.leftWall = this.add.rectangle(-10, 270, 20, 540, 0x000000, 0);
+  //   this.physics.add.existing(this.leftWall, true);
+    
+  //   this.rightWall = this.add.rectangle(12010, 270, 20, 540, 0x000000, 0);
+  //   this.physics.add.existing(this.rightWall, true);
     
     // Create platforms and obstacles
     this.platforms = this.physics.add.staticGroup();
@@ -1682,118 +1724,253 @@ export class Level2Scene extends Phaser.Scene {
     }
   }
   
-    showGameOverScreen() {
-    // Disable all game functionality
-    this.levelComplete = true; // Prevents update logic
-    this.chaseStarted = false;
+  //   showGameOverScreen() {
+  //   // Disable all game functionality
+  //   this.levelComplete = true; // Prevents update logic
+  //   this.chaseStarted = false;
     
-    // Stop all movement and enemies
-    this.player.setVelocity(0, 0);
+  //   // Stop all movement and enemies
+  //   this.player.setVelocity(0, 0);
     
-    // Disable player controls
-    this.player.active = false;
-    this.player.body.moves = false;
+  //   // Disable player controls
+  //   this.player.active = false;
+  //   this.player.body.moves = false;
     
-    // Stop enemy spawning
-    if (this.enemySpawnTimer) {
-      this.enemySpawnTimer.destroy();
-    }
+  //   // Stop enemy spawning
+  //   if (this.enemySpawnTimer) {
+  //     this.enemySpawnTimer.destroy();
+  //   }
     
-    // Freeze all enemies
+  //   // Freeze all enemies
+  //   this.enemies.getChildren().forEach(enemy => {
+  //     enemy.setVelocity(0, 0);
+  //     enemy.body.moves = false;
+  //   });
+    
+  //   // Create overlay with fade-in
+  //   const overlay = this.add.rectangle(
+  //     this.cameras.main.scrollX + 480,
+  //     270,
+  //     960, 
+  //     540,
+  //     0x000000,
+  //     0
+  //   ).setScrollFactor(1);
+    
+  //   this.tweens.add({
+  //     targets: overlay,
+  //     alpha: 0.9,
+  //     duration: 1000
+  //   });
+    
+  //   // Game over text with animation
+  //   const gameOverText = this.add.text(
+  //     this.cameras.main.scrollX + 480,
+  //     100,
+  //     'GAME OVER',
+  //     {
+  //       font: '64px Arial',
+  //       fill: '#FF0000',
+  //       stroke: '#000000',
+  //       strokeThickness: 6,
+  //       align: 'center'
+  //     }
+  //   ).setOrigin(0.5).setScrollFactor(1).setAlpha(0);
+    
+  //   this.tweens.add({
+  //     targets: gameOverText,
+  //     alpha: 1,
+  //     y: 200,
+  //     duration: 1000,
+  //     ease: 'Bounce.easeOut'
+  //   });
+    
+  //   // Create a proper button for retrying instead of just text
+  //   const buttonBackground = this.add.rectangle(
+  //     this.cameras.main.scrollX + 480,
+  //     350,
+  //     250,
+  //     60,
+  //     0x660000,
+  //     1
+  //   ).setOrigin(0.5).setScrollFactor(1).setAlpha(0).setInteractive();
+    
+  //   const retryText = this.add.text(
+  //     this.cameras.main.scrollX + 480,
+  //     350,
+  //     'TRY AGAIN',
+  //     {
+  //       font: '32px Arial',
+  //       fill: '#FFFFFF',
+  //       stroke: '#000000',
+  //       strokeThickness: 3,
+  //       align: 'center'
+  //     }
+  //   ).setOrigin(0.5).setScrollFactor(1).setAlpha(0);
+    
+  //   // Show button with delay
+  //   this.tweens.add({
+  //     targets: [buttonBackground, retryText],
+  //     alpha: 1,
+  //     delay: 1000,
+  //     duration: 1000
+  //   });
+    
+  //   // Button hover effect
+  //   buttonBackground.on('pointerover', () => {
+  //     buttonBackground.fillColor = 0x990000;
+  //   });
+    
+  //   buttonBackground.on('pointerout', () => {
+  //     buttonBackground.fillColor = 0x660000;
+  //   });
+    
+  //   // Wait for click on the button to restart (not anywhere on screen)
+  //   buttonBackground.on('pointerdown', () => {
+  //     // Proper cleanup before restart
+  //     this.cleanup();
+      
+  //     // Completely stop the current scene and restart it fresh
+  //     this.scene.stop('Level2Scene');
+  //     this.scene.start('Level2Scene');
+  //   });
+  // }
+  showGameOverScreen() {
+  // Disable all game functionality
+  this.levelComplete = true;
+  this.chaseStarted = false;
+  
+  // Stop all movement and enemies
+  this.player.setVelocity(0, 0);
+  this.player.active = false;
+  this.player.body.moves = false;
+  
+  // Stop enemy spawning
+  if (this.enemySpawnTimer) {
+    this.enemySpawnTimer.destroy();
+  }
+  
+  // Freeze all enemies
+  if (this.enemies) {
     this.enemies.getChildren().forEach(enemy => {
       enemy.setVelocity(0, 0);
       enemy.body.moves = false;
     });
+  }
+  
+  // Create overlay with fade-in
+  const overlay = this.add.rectangle(
+    this.cameras.main.scrollX + 480,
+    270,
+    960, 
+    540,
+    0x000000,
+    0
+  ).setScrollFactor(1).setDepth(9998);
+  
+  this.tweens.add({
+    targets: overlay,
+    alpha: 0.9,
+    duration: 1000
+  });
+  
+  // Game over text with animation
+  const gameOverText = this.add.text(
+    this.cameras.main.scrollX + 480,
+    100,
+    'GAME OVER',
+    {
+      font: '64px Arial',
+      fill: '#FF0000',
+      stroke: '#000000',
+      strokeThickness: 6,
+      align: 'center'
+    }
+  ).setOrigin(0.5).setScrollFactor(1).setAlpha(0).setDepth(9999);
+  
+  this.tweens.add({
+    targets: gameOverText,
+    alpha: 1,
+    y: 200,
+    duration: 1000,
+    ease: 'Bounce.easeOut'
+  });
+  
+  // Create a proper button for retrying
+  const buttonBackground = this.add.rectangle(
+    this.cameras.main.scrollX + 480,
+    350,
+    250,
+    60,
+    0x660000,
+    1
+  ).setOrigin(0.5).setScrollFactor(1).setAlpha(0).setInteractive().setDepth(9999);
+  
+  const retryText = this.add.text(
+    this.cameras.main.scrollX + 480,
+    350,
+    'TRY AGAIN',
+    {
+      font: '32px Arial',
+      fill: '#FFFFFF',
+      stroke: '#000000',
+      strokeThickness: 3,
+      align: 'center'
+    }
+  ).setOrigin(0.5).setScrollFactor(1).setAlpha(0).setDepth(10000);
+  
+  // Show button with delay
+  this.tweens.add({
+    targets: [buttonBackground, retryText],
+    alpha: 1,
+    delay: 1000,
+    duration: 1000
+  });
+  
+  // Button hover effect
+  buttonBackground.on('pointerover', () => {
+    buttonBackground.fillColor = 0x990000;
+  });
+  
+  buttonBackground.on('pointerout', () => {
+    buttonBackground.fillColor = 0x660000;
+  });
+  
+  // FIXED: Proper restart logic
+  buttonBackground.once('pointerdown', () => {
+    console.log('🔄 Retry button clicked - Restarting Level 2...');
     
-    // Create overlay with fade-in
-    const overlay = this.add.rectangle(
-      this.cameras.main.scrollX + 480,
-      270,
-      960, 
-      540,
-      0x000000,
-      0
-    ).setScrollFactor(1);
+    // Disable the button immediately to prevent double-clicks
+    buttonBackground.disableInteractive();
+    retryText.setAlpha(0.5);
     
-    this.tweens.add({
-      targets: overlay,
-      alpha: 0.9,
-      duration: 1000
-    });
+    // Fade out
+    this.cameras.main.fadeOut(500, 0, 0, 0);
     
-    // Game over text with animation
-    const gameOverText = this.add.text(
-      this.cameras.main.scrollX + 480,
-      100,
-      'GAME OVER',
-      {
-        font: '64px Arial',
-        fill: '#FF0000',
-        stroke: '#000000',
-        strokeThickness: 6,
-        align: 'center'
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      // Clean up mobile controls specifically
+      if (this.mobileControls) {
+        this.mobileControls.left = false;
+        this.mobileControls.right = false;
+        this.mobileControls.up = false;
+        this.mobileControls.shoot = false;
       }
-    ).setOrigin(0.5).setScrollFactor(1).setAlpha(0);
-    
-    this.tweens.add({
-      targets: gameOverText,
-      alpha: 1,
-      y: 200,
-      duration: 1000,
-      ease: 'Bounce.easeOut'
-    });
-    
-    // Create a proper button for retrying instead of just text
-    const buttonBackground = this.add.rectangle(
-      this.cameras.main.scrollX + 480,
-      350,
-      250,
-      60,
-      0x660000,
-      1
-    ).setOrigin(0.5).setScrollFactor(1).setAlpha(0).setInteractive();
-    
-    const retryText = this.add.text(
-      this.cameras.main.scrollX + 480,
-      350,
-      'TRY AGAIN',
-      {
-        font: '32px Arial',
-        fill: '#FFFFFF',
-        stroke: '#000000',
-        strokeThickness: 3,
-        align: 'center'
-      }
-    ).setOrigin(0.5).setScrollFactor(1).setAlpha(0);
-    
-    // Show button with delay
-    this.tweens.add({
-      targets: [buttonBackground, retryText],
-      alpha: 1,
-      delay: 1000,
-      duration: 1000
-    });
-    
-    // Button hover effect
-    buttonBackground.on('pointerover', () => {
-      buttonBackground.fillColor = 0x990000;
-    });
-    
-    buttonBackground.on('pointerout', () => {
-      buttonBackground.fillColor = 0x660000;
-    });
-    
-    // Wait for click on the button to restart (not anywhere on screen)
-    buttonBackground.on('pointerdown', () => {
-      // Proper cleanup before restart
+      
+      // Proper cleanup
       this.cleanup();
       
-      // Completely stop the current scene and restart it fresh
+      // Reset game data for fresh start
+      GameData.playerStats.health = 100;
+      GameData.playerStats.coins = 0;
+      GameData.playerStats.currentLevel = 2;
+      
+      // Stop and restart the scene
       this.scene.stop('Level2Scene');
       this.scene.start('Level2Scene');
     });
-  }
-  
+  });
+}
+
 
     // Add cleanup method to properly clean up the scene
   cleanup() {
@@ -2172,43 +2349,7 @@ showLevel3ConstructionMessage() {
   });
 }
 
-update() {
-    if (this.levelComplete) return;
-    
-    // Player movement
-    this.player.move(this.cursors, this.mobileControls);
-    
-    // Track player facing direction for shooting
-    if (this.player.body.velocity.x > 0) {
-      this.playerFacingRight = true;
-    } else if (this.player.body.velocity.x < 0) {
-      this.playerFacingRight = false;
-    }
-    
-    // Fire control with space key OR mobile shoot button
-    if (Phaser.Input.Keyboard.JustDown(this.spaceKey) || 
-        (this.mobileControls && this.mobileControls.shoot)) {
-      // Reset shoot control to prevent continuous firing
-      if (this.mobileControls) {
-        this.mobileControls.shoot = false;
-      }
-      
-      // FIXED: Shoot in the direction player is facing
-      const direction = this.player.flipX ? 1 : -1; // flipX true = facing right
-      const worldPoint = {
-        x: this.player.x + (direction * 200),
-        y: this.player.y - 30
-      };
-        
-      const screenX = (worldPoint.x - this.cameras.main.scrollX);
-      const screenY = (worldPoint.y - this.cameras.main.scrollY);
-      
-      const mockPointer = {
-        x: screenX,
-        y: screenY
-      };
-      this.shootFireballAtPointer(mockPointer);
-    }
+
   
 //  update() {
 //   if (this.levelComplete) return;
@@ -2249,6 +2390,43 @@ update() {
 //     this.shootFireballAtPointer(mockPointer);
 //   }
 // }
+update() {
+    if (this.levelComplete) return;
+    
+    // Player movement
+    this.player.move(this.cursors, this.mobileControls);
+    
+    // Track player facing direction for shooting
+    if (this.player.body.velocity.x > 0) {
+      this.playerFacingRight = true;
+    } else if (this.player.body.velocity.x < 0) {
+      this.playerFacingRight = false;
+    }
+    
+    // Fire control with space key OR mobile shoot button
+    if (Phaser.Input.Keyboard.JustDown(this.spaceKey) || 
+        (this.mobileControls && this.mobileControls.shoot)) {
+      // Reset shoot control to prevent continuous firing
+      if (this.mobileControls) {
+        this.mobileControls.shoot = false;
+      }
+      
+      // FIXED: Shoot in the direction player is facing
+      const direction = this.player.flipX ? 1 : -1; // flipX true = facing right
+      const worldPoint = {
+        x: this.player.x + (direction * 200),
+        y: this.player.y - 30
+      };
+        
+      const screenX = (worldPoint.x - this.cameras.main.scrollX);
+      const screenY = (worldPoint.y - this.cameras.main.scrollY);
+      
+      const mockPointer = {
+        x: screenX,
+        y: screenY
+      };
+      this.shootFireballAtPointer(mockPointer);
+}
   
   // Update targeting reticle if active
   if (this.targetingMode) {
@@ -2347,24 +2525,24 @@ this.reticleDirection.setTo(
     }
     
     // Camera parallax effect for background
-    this.backgrounds.forEach((bg, i) => {
-      // If this background is off-screen to the left
-      if (bg.x + 480 < this.cameras.main.scrollX) {
-        // Move it to the right end
-        const rightmostBg = this.backgrounds.reduce((prev, curr) => {
-          return (curr.x > prev.x) ? curr : prev;
-        });
-        bg.x = rightmostBg.x + 960;
-      }
-      // If this background is off-screen to the right
-      else if (bg.x - 480 > this.cameras.main.scrollX + this.cameras.main.width) {
-        // Move it to the left end
-        const leftmostBg = this.backgrounds.reduce((prev, curr) => {
-          return (curr.x < prev.x) ? curr : prev;
-        });
-        bg.x = leftmostBg.x - 960;
-      }
-    });
+    // this.backgrounds.forEach((bg, i) => {
+    //   // If this background is off-screen to the left
+    //   if (bg.x + 480 < this.cameras.main.scrollX) {
+    //     // Move it to the right end
+    //     const rightmostBg = this.backgrounds.reduce((prev, curr) => {
+    //       return (curr.x > prev.x) ? curr : prev;
+    //     });
+    //     bg.x = rightmostBg.x + 960;
+    //   }
+    //   // If this background is off-screen to the right
+    //   else if (bg.x - 480 > this.cameras.main.scrollX + this.cameras.main.width) {
+    //     // Move it to the left end
+    //     const leftmostBg = this.backgrounds.reduce((prev, curr) => {
+    //       return (curr.x < prev.x) ? curr : prev;
+    //     });
+    //     bg.x = leftmostBg.x - 960;
+    //   }
+    // });
   }
 }
 }
