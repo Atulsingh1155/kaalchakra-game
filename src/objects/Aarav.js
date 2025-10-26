@@ -140,20 +140,16 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
     this.hasShield = false;
     this.hasMultishot = false;
     
-    // ADDED: Track facing direction (1 = right, -1 = left)
-    this.facingDirection = 1; // Start facing right
+    // Track facing direction (1 = right, -1 = left)
+    this.facingDirection = 1;
 
     // Ensure we start on ground, not at world bottom
     this.snapToGround();
   }
 
   move(cursors, mobileControls = null) {
-    // Use feet-ground (groundLevel - standOffset) for accurate ground detection
-    const groundY = this.feetGroundY();
-    const onGround =
-      this.body.blocked.down ||
-      this.body.touching.down ||
-      this.y >= groundY - 1;
+    // FIXED: More reliable ground detection
+    const onGround = this.body.blocked.down || this.body.touching.down;
     
     // Combine keyboard and mobile inputs
     const left = (cursors && cursors.left.isDown) || (mobileControls && mobileControls.left);
@@ -167,42 +163,42 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
     if (left) {
       this.setVelocityX(-200 * speedMultiplier);
       this.setFlipX(false); // Face left
-      this.facingDirection = -1; // ADDED: Track direction
+      this.facingDirection = -1;
     } else if (right) {
       this.setVelocityX(200 * speedMultiplier);
       this.setFlipX(true); // Face right
-      this.facingDirection = 1; // ADDED: Track direction
+      this.facingDirection = 1;
     } else {
       this.setVelocityX(0);
     }
     
-    // Jumping - only if on ground and not already jumping
+    // FIXED: Simplified jump logic - just check if on ground
     if (up && onGround) {
       this.setVelocityY(-400);
       this.isJumping = true;
     }
     
-    // Reset jumping state if on any ground (platform or floor)
-    if (onGround && this.body.velocity.y === 0) {
+    // Reset jumping state when on ground
+    if (onGround) {
       this.isJumping = false;
     }
-
-    // Keep player on scene ground (not world bottom), slightly above it
-    this.snapToGround();
   }
 
-  // Keep feet a little above the scene's ground line
+  // REMOVED: snapToGround from move method - it was interfering with physics
+  // The physics engine handles ground positioning automatically
+
+  // Helper: y where Aarav should stand (accounts for standOffset)
+  feetGroundY() {
+    return this.groundLevel - (this.standOffset || 0);
+  }
+
+  // Keep feet a little above the scene's ground line (only call when needed)
   snapToGround() {
     const targetY = this.feetGroundY();
     if (this.y > targetY) {
       this.y = targetY;
       this.setVelocityY(0);
     }
-  }
-
-  // Helper: y where Aarav should stand (accounts for standOffset)
-  feetGroundY() {
-    return this.groundLevel - (this.standOffset || 0);
   }
 
   // Reset player state when returning to Level 1
