@@ -90,7 +90,7 @@ export class Coin extends Phaser.Physics.Arcade.Sprite {
     
     // FIXED: Responsive coin size based on device
     const isMobile = scene.sys.game.device.input.touch;
-    const coinScale = isMobile ? 0.08 : 0.05; // Bigger on mobile devices
+    const coinScale = isMobile ? 0.1 : 0.2; // Bigger on mobile devices
     this.setScale(coinScale);
     
     // Collision box proportional to scale
