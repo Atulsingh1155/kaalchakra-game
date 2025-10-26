@@ -318,7 +318,7 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
     this.isJumping = false;
     this.facingDirection = 1;
     
-    this.body.setSize(80, 200);
+    this.body.setSize(100, 300);
     this.setBounce(0.2);
     this.body.setCollideWorldBounds(true);
   }
