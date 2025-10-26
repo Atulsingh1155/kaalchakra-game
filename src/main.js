@@ -90,6 +90,8 @@
 //   new Game();
 // });
 
+
+
 import Phaser from 'phaser';
 import { GameConfig } from './data/gameConfig.js';
 import { PreloadScene } from './scenes/PreloadScene.js';
@@ -138,6 +140,7 @@ class Game extends Phaser.Game {
     // Fullscreen handled by mobile overlay in PreloadScene
     // Keep method available for manual triggering if needed
     this.requestFullscreenOnStart();
+    this.setupFullscreenListeners();
   }
 
   requestFullscreenOnStart() {
@@ -177,9 +180,22 @@ class Game extends Phaser.Game {
     window.addEventListener('touchstart', goFullscreen, { once: true });
     window.addEventListener('click', goFullscreen, { once: true });
   }
+
+  setupFullscreenListeners() {
+    // Handle fullscreen exit (back button)
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        console.log('Exited fullscreen');
+      }
+    });
+    document.addEventListener('webkitfullscreenchange', () => {
+      if (!document.webkitFullscreenElement) {
+        console.log('Exited fullscreen');
+      }
+    });
+  }
 }
 
 window.addEventListener('load', () => {
   new Game();
 });
-

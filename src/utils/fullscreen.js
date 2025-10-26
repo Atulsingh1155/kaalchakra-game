@@ -4,28 +4,43 @@ export function isMobile() {
   return touch && /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
 }
 
-export function requestLandscapeFullscreen() {
-  return new Promise((resolve) => {
-    const container = document.getElementById('game-container') || document.documentElement;
+export function isLandscape() {
+  return window.innerWidth > window.innerHeight;
+}
 
-    const lockToLandscape = () => {
-      if (screen.orientation && screen.orientation.lock) {
-        screen.orientation.lock('landscape').catch(() => {}).finally(resolve);
-      } else {
-        resolve();
-      }
-    };
-
-    const req =
-      container.requestFullscreen ||
-      container.webkitRequestFullscreen ||
-      container.mozRequestFullScreen ||
-      container.msRequestFullscreen;
-
-    if (req) {
-      Promise.resolve(req.call(container)).catch(() => {}).finally(lockToLandscape);
-    } else {
-      lockToLandscape();
+export async function requestLandscapeFullscreen() {
+  const container = document.getElementById('game-container') || document.documentElement;
+  
+  try {
+    // Request fullscreen first
+    const requestFS = container.requestFullscreen || 
+                      container.webkitRequestFullscreen || 
+                      container.mozRequestFullScreen || 
+                      container.msRequestFullscreen;
+    
+    if (requestFS) {
+      await requestFS.call(container);
     }
-  });
+    
+    // Then lock orientation to landscape
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock('landscape').catch(() => {
+        console.log('Orientation lock not supported');
+      });
+    }
+  } catch (err) {
+    console.log('Fullscreen request:', err);
+  }
+}
+
+export function exitFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  } else if (document.webkitExitFullscreen) {
+    document.webkitExitFullscreen();
+  } else if (document.mozCancelFullScreen) {
+    document.mozCancelFullScreen();
+  } else if (document.msExitFullscreen) {
+    document.msExitFullscreen();
+  }
 }

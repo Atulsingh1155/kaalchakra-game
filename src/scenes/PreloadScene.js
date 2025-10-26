@@ -259,7 +259,7 @@
 // }
 
 
-import { isMobile, requestLandscapeFullscreen } from '../utils/fullscreen.js';
+import { isMobile, isLandscape, requestLandscapeFullscreen } from '../utils/fullscreen.js';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() { 
@@ -508,7 +508,7 @@ export class PreloadScene extends Phaser.Scene {
   }
   
   create() {
-    // Desktop: keep current simple click-to-start
+    // Desktop: simple click to start
     if (!isMobile()) {
       this.add.text(480, 380, 'Game Ready! Click to Begin Adventure', {
         font: '24px Arial',
@@ -516,62 +516,126 @@ export class PreloadScene extends Phaser.Scene {
         stroke: '#000000',
         strokeThickness: 2
       }).setOrigin(0.5);
-      
+
       this.input.once('pointerdown', () => {
         this.scene.start('IntroScene');
       });
       return;
     }
-    
-    // Mobile: show rotate/landscape fullscreen prompt with rectangular button
-    this.showMobileStartOverlay();
+
+    // Mobile: show rotation prompt with animated UI
+    this.showMobileRotationPrompt();
   }
-  
-  showMobileStartOverlay() {
+
+  showMobileRotationPrompt() {
     const cx = 480, cy = 270;
-    const dim = this.add.rectangle(cx, cy, 960, 540, 0x000000, 0.8).setScrollFactor(0);
-    
-    const msg = this.add.text(cx, cy - 40, 'Rotate your device for best experience', {
-      font: '22px Arial',
+
+    // Dark overlay
+    const overlay = this.add.rectangle(cx, cy, 960, 540, 0x000000, 0.95)
+      .setScrollFactor(0)
+      .setDepth(10000);
+
+    // Rotation icon (phone rotating animation)
+    const rotateIcon = this.add.text(cx, cy - 80, '📱 ↻', {
+      font: 'bold 64px Arial',
+      fill: '#FFFFFF'
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
+
+    // Pulse animation for icon
+    this.tweens.add({
+      targets: rotateIcon,
+      scale: 1.2,
+      duration: 1000,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    });
+
+    // Main message
+    const message = this.add.text(cx, cy + 20, 'Please rotate your device to landscape', {
+      font: 'bold 28px Arial',
       fill: '#FFFFFF',
       stroke: '#000000',
-      strokeThickness: 3,
+      strokeThickness: 4,
       align: 'center',
       wordWrap: { width: 800 }
-    }).setOrigin(0.5).setScrollFactor(0);
-    
-    // Rectangular button
-    const btnW = 280, btnH = 80;
-    const btn = this.add.rectangle(cx, cy + 40, btnW, btnH, 0x4A148C, 1)
-      .setStrokeStyle(3, 0xFFFFFF)
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(10001);
+
+    // Play button (shows when in landscape)
+    const playButton = this.add.rectangle(cx, cy + 100, 280, 80, 0x00AA00, 1)
+      .setStrokeStyle(4, 0xFFFFFF)
       .setScrollFactor(0)
-      .setInteractive({ useHandCursor: true });
-    
-    const label = this.add.text(cx, cy + 40, 'Play in Fullscreen', {
-      font: '24px Arial',
+      .setDepth(10001)
+      .setInteractive({ useHandCursor: true })
+      .setVisible(false);
+
+    const playLabel = this.add.text(cx, cy + 100, 'TAP TO START', {
+      font: 'bold 28px Arial',
       fill: '#FFFFFF'
-    }).setOrigin(0.5).setScrollFactor(0);
-    
-    const group = this.add.container(0, 0, [dim, msg, btn, label]).setDepth(9999);
-    
-    const go = async () => {
-      btn.fillColor = 0x6A1B9A;
-      await requestLandscapeFullscreen();
-      // Small delay to let orientation settle
-      this.time.delayedCall(150, () => this.scene.start('IntroScene'));
-    };
-    
-    btn.on('pointerdown', go);
-    
-    // If user manually rotates to landscape, start on first tap anywhere
-    const startIfLandscape = () => {
-      const landscape = Math.max(window.innerWidth, window.innerHeight) === window.innerWidth;
-      if (landscape) {
-        this.input.once('pointerdown', go);
+    }).setOrigin(0.5).setScrollFactor(0).setDepth(10002).setVisible(false);
+
+    // Glow effect on button
+    this.tweens.add({
+      targets: playButton,
+      alpha: 0.8,
+      duration: 800,
+      yoyo: true,
+      repeat: -1
+    });
+
+    // Check orientation and update UI
+    const checkOrientation = () => {
+      if (isLandscape()) {
+        // Hide rotation prompt, show play button
+        rotateIcon.setVisible(false);
+        message.setText('Tap below to start in fullscreen');
+        playButton.setVisible(true);
+        playLabel.setVisible(true);
+      } else {
+        // Show rotation prompt, hide play button
+        rotateIcon.setVisible(true);
+        message.setText('Please rotate your device to landscape');
+        playButton.setVisible(false);
+        playLabel.setVisible(false);
       }
     };
-    
-    startIfLandscape();
-    window.addEventListener('orientationchange', startIfLandscape, { once: true });
+
+    // Initial check
+    checkOrientation();
+
+    // Listen for orientation changes
+    const orientationHandler = () => {
+      this.time.delayedCall(100, checkOrientation);
+    };
+
+    window.addEventListener('orientationchange', orientationHandler);
+    window.addEventListener('resize', orientationHandler);
+
+    // Start game on button tap
+    const startGame = async () => {
+      if (!isLandscape()) {
+        // Force user to rotate first
+        return;
+      }
+
+      playButton.setInteractive(false);
+      playButton.setAlpha(1);
+      playLabel.setText('LOADING...');
+
+      // Request fullscreen and lock orientation
+      await requestLandscapeFullscreen();
+
+      // Small delay for orientation to settle
+      this.time.delayedCall(200, () => {
+        // Clean up listeners
+        window.removeEventListener('orientationchange', orientationHandler);
+        window.removeEventListener('resize', orientationHandler);
+
+        // Start game
+        this.scene.start('IntroScene');
+      });
+    };
+
+    playButton.on('pointerdown', startGame);
   }
 }
