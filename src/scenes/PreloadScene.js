@@ -15,17 +15,20 @@ export class PreloadScene extends Phaser.Scene {
     // Progress bar
     this.createLoadingBar();
 
-     // FIXED - Add leading slash to ALL asset paths:
-   this.load.image('introBackground', 'assets/images/intro_bg.png');
+       // FIXED: Use relative paths without leading slash for Vite
+  this.load.image('introBackground', 'assets/images/intro_bg.png');
   this.load.image('boy', 'assets/images/boy.png');
   this.load.image('grandmother', 'assets/images/grandmother.png');
   this.load.image('gameBackground', 'assets/images/game_bg.png');
-  this.load.image('coin', 'assets/images/coin.png'); // CHANGED: Removed leading /
+  
+  // IMPORTANT: Check if coin.png actually exists in public/assets/images/
+  this.load.image('coin', 'assets/images/coin.png');
+  
   this.load.image('enemy', 'assets/images/enemy.png');
   this.load.image('game_bg2', 'assets/images/game_bg2.png');
   this.load.image('fire_ball', 'assets/images/fire_ball.png');
   
-  // Audio files
+  // Audio files - these might not exist, add error handling
   this.load.audio('introMusic', 'assets/audio/intro_music.mp3');
   this.load.audio('coinSound', 'assets/audio/coin_collect.wav');
   this.load.audio('hitSound', 'assets/audio/hit_sound.wav');
