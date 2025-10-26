@@ -88,9 +88,14 @@ export class Coin extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
     
-    // Keep your perfect scale and size
-    this.setScale(0.05);
-    this.body.setSize(30, 30);
+    // FIXED: Responsive coin size based on device
+    const isMobile = scene.sys.game.device.input.touch;
+    const coinScale = isMobile ? 0.08 : 0.05; // Bigger on mobile devices
+    this.setScale(coinScale);
+    
+    // Collision box proportional to scale
+    const bodySize = isMobile ? 50 : 30;
+    this.body.setSize(bodySize, bodySize);
     
     // Disable gravity and make coin immovable
     this.body.setGravityY(0);
@@ -150,13 +155,16 @@ export class Coin extends Phaser.Physics.Arcade.Sprite {
     // Stop all animations before destroying
     this.scene.tweens.killTweensOf(this);
     
-    // FIXED: Scale UP from current size (make it grow, not shrink)
+    // FIXED: Scale UP from current size with proper mobile scaling
+    const isMobile = this.scene.sys.game.device.input.touch;
+    const targetScale = isMobile ? 0.24 : 0.15; // Bigger collection animation on mobile
+    
     this.scene.tweens.add({
       targets: this,
-      scaleX: 0.15, // Grow to 3x current size (0.05 * 3 = 0.15)
-      scaleY: 0.15,
+      scaleX: targetScale,
+      scaleY: targetScale,
       alpha: 0,
-      rotation: this.rotation + Math.PI * 2, // Full rotation
+      rotation: this.rotation + Math.PI * 2,
       duration: 400,
       ease: 'Back.easeIn',
       onComplete: () => {
