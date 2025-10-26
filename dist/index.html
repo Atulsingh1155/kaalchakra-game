@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -44,111 +44,9 @@
       background: #000;
     }
   </style>
-  <script type="module" crossorigin src="./assets/index-SAb4WR6H.js"></script>
+  <script type="module" crossorigin src="./assets/index-BnpSZ2cW.js"></script>
 </head>
 <body>
-  <div id="game-container"></div>
-  <script type="module" src="/src/main.js"></script>
-</body>
-</html> -->
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <!-- ADDED: Force landscape orientation -->
-  <meta name="screen-orientation" content="landscape">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  
-  <title>Kaalchakra: The Curse of Time</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      touch-action: none;
-    }
-    
-    html, body { 
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      position: fixed;
-    }
-    
-    body { 
-      background: #000; 
-      display: flex; 
-      justify-content: center; 
-      align-items: center; 
-      font-family: Arial, sans-serif;
-    }
-    
-    #game-container { 
-      /* REMOVED: border and border-radius for true fullscreen */
-      width: 100vw !important;
-      height: 100vh !important;
-      max-width: 100vw;
-      max-height: 100vh;
-      position: relative;
-      touch-action: none;
-      background: #000;
-    }
-    
-    /* ADDED: Landscape orientation warning */
-    #orientation-warning {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.95);
-      color: white;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      z-index: 9999;
-      font-size: 24px;
-      text-align: center;
-      padding: 20px;
-    }
-    
-    @media screen and (orientation: portrait) and (max-width: 768px) {
-      #orientation-warning {
-        display: flex !important;
-      }
-      #game-container {
-        display: none;
-      }
-    }
-    
-    /* Fullscreen styles - no border or rounded corners */
-    #game-container:fullscreen {
-      width: 100vw !important;
-      height: 100vh !important;
-      background: #000;
-    }
-    
-    /* Canvas should also fill the container */
-    canvas {
-      display: block;
-      margin: 0;
-      padding: 0;
-    }
-  </style>
-</head>
-<body>
-  <!-- ADDED: Landscape orientation warning -->
-  <div id="orientation-warning">
-    <div>📱</div>
-    <div style="margin-top: 20px;">Please rotate your device to landscape mode</div>
-    <div style="margin-top: 10px; font-size: 18px; opacity: 0.7;">This game is best played in landscape orientation</div>
-  </div>
-  
   <div id="game-container"></div>
 </body>
 </html>
