@@ -116,6 +116,126 @@
 
 
 
+// export class Aarav extends Phaser.Physics.Arcade.Sprite {
+//   constructor(scene, x, y) {
+//     super(scene, x, y, 'boy');
+//     scene.add.existing(this);
+//     scene.physics.add.existing(this);
+    
+//     // Set proper body size and ground level
+//     this.setScale(0.4);
+//     this.setBounce(0.2);
+//     this.body.setSize(80, 200);
+
+//     // Ground level used across scenes
+//     this.groundLevel = 480;
+//     // Lift the standing position slightly above the ground line
+//     this.standOffset = 8;
+
+//     this.isJumping = false;
+//     this.body.setCollideWorldBounds(true);
+    
+//     // Initialize powerup states
+//     this.speedBoost = 1;
+//     this.hasShield = false;
+//     this.hasMultishot = false;
+    
+//     // Track facing direction (1 = right, -1 = left)
+//     this.facingDirection = 1;
+
+//     // Ensure we start on ground, not at world bottom
+//     this.snapToGround();
+//   }
+
+//   move(cursors, mobileControls = null) {
+//     // FIXED: More reliable ground detection
+//     const onGround = this.body.blocked.down || this.body.touching.down;
+    
+//     // Combine keyboard and mobile inputs
+//     const left = (cursors && cursors.left.isDown) || (mobileControls && mobileControls.left);
+//     const right = (cursors && cursors.right.isDown) || (mobileControls && mobileControls.right);
+//     const up = (cursors && cursors.up.isDown) || (mobileControls && mobileControls.up);
+    
+//     // Apply speed boost if player has it
+//     const speedMultiplier = this.speedBoost || 1;
+    
+//     // Horizontal movement
+//     if (left) {
+//       this.setVelocityX(-200 * speedMultiplier);
+//       this.setFlipX(false); // Face left
+//       this.facingDirection = -1;
+//     } else if (right) {
+//       this.setVelocityX(200 * speedMultiplier);
+//       this.setFlipX(true); // Face right
+//       this.facingDirection = 1;
+//     } else {
+//       this.setVelocityX(0);
+//     }
+    
+//     // FIXED: Simplified jump logic - just check if on ground
+//     if (up && onGround) {
+//       this.setVelocityY(-400);
+//       this.isJumping = true;
+//     }
+    
+//     // Reset jumping state when on ground
+//     if (onGround) {
+//       this.isJumping = false;
+//     }
+//   }
+
+//   // REMOVED: snapToGround from move method - it was interfering with physics
+//   // The physics engine handles ground positioning automatically
+
+//   // Helper: y where Aarav should stand (accounts for standOffset)
+//   feetGroundY() {
+//     return this.groundLevel - (this.standOffset || 0);
+//   }
+
+//   // Keep feet a little above the scene's ground line (only call when needed)
+//   snapToGround() {
+//     const targetY = this.feetGroundY();
+//     if (this.y > targetY) {
+//       this.y = targetY;
+//       this.setVelocityY(0);
+//     }
+//   }
+
+//   // Reset player state when returning to Level 1
+//   reinitialize() {
+//     // Reset any player-specific flags
+//     this.setActive(true);
+//     this.setVisible(true);
+//     this.body.moves = true;
+//     this.body.setEnable(true);
+//     this.setVelocity(0, 0);
+    
+//     // Reset any powerups or special states
+//     this.speedBoost = 1;
+//     this.hasShield = false;
+//     this.hasMultispot = false;
+    
+//     // Reset alpha and scale in case they were modified
+//     this.setAlpha(1);
+//     this.setScale(0.4);
+    
+//     // Reset jumping state
+//     this.isJumping = false;
+    
+//     // Reset facing direction
+//     this.facingDirection = 1;
+    
+//     // Ensure physics body is properly configured
+//     this.body.setSize(80, 200);
+//     this.setBounce(0.2);
+//     this.body.setCollideWorldBounds(true);
+
+//     // Stand slightly above ground after re-init
+//     this.snapToGround();
+//   }
+// }
+
+
 export class Aarav extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'boy');
@@ -125,12 +245,11 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
     // Set proper body size and ground level
     this.setScale(0.4);
     this.setBounce(0.2);
-    this.body.setSize(80, 200);
+    this.body.setSize(100, 300);
 
-    // Ground level used across scenes
-    this.groundLevel = 480;
-    // Lift the standing position slightly above the ground line
-    this.standOffset = 8;
+    // FIXED: Ground level - player's feet position (sprite center is at body center)
+    this.groundLevel = 380; // Raised higher so player appears on top of ground line
+    this.standOffset = 0; // No offset needed now
 
     this.isJumping = false;
     this.body.setCollideWorldBounds(true);
@@ -142,13 +261,10 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
     
     // Track facing direction (1 = right, -1 = left)
     this.facingDirection = 1;
-
-    // Ensure we start on ground, not at world bottom
-    this.snapToGround();
   }
 
   move(cursors, mobileControls = null) {
-    // FIXED: More reliable ground detection
+    // Ground detection
     const onGround = this.body.blocked.down || this.body.touching.down;
     
     // Combine keyboard and mobile inputs
@@ -172,7 +288,7 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
       this.setVelocityX(0);
     }
     
-    // FIXED: Simplified jump logic - just check if on ground
+    // Jump logic
     if (up && onGround) {
       this.setVelocityY(-400);
       this.isJumping = true;
@@ -184,53 +300,26 @@ export class Aarav extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  // REMOVED: snapToGround from move method - it was interfering with physics
-  // The physics engine handles ground positioning automatically
-
-  // Helper: y where Aarav should stand (accounts for standOffset)
-  feetGroundY() {
-    return this.groundLevel - (this.standOffset || 0);
-  }
-
-  // Keep feet a little above the scene's ground line (only call when needed)
-  snapToGround() {
-    const targetY = this.feetGroundY();
-    if (this.y > targetY) {
-      this.y = targetY;
-      this.setVelocityY(0);
-    }
-  }
-
   // Reset player state when returning to Level 1
   reinitialize() {
-    // Reset any player-specific flags
     this.setActive(true);
     this.setVisible(true);
     this.body.moves = true;
     this.body.setEnable(true);
     this.setVelocity(0, 0);
     
-    // Reset any powerups or special states
     this.speedBoost = 1;
     this.hasShield = false;
     this.hasMultispot = false;
     
-    // Reset alpha and scale in case they were modified
     this.setAlpha(1);
     this.setScale(0.4);
     
-    // Reset jumping state
     this.isJumping = false;
-    
-    // Reset facing direction
     this.facingDirection = 1;
     
-    // Ensure physics body is properly configured
     this.body.setSize(80, 200);
     this.setBounce(0.2);
     this.body.setCollideWorldBounds(true);
-
-    // Stand slightly above ground after re-init
-    this.snapToGround();
   }
 }
