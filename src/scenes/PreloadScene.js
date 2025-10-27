@@ -622,11 +622,26 @@ export class PreloadScene extends Phaser.Scene {
       playButton.setAlpha(1);
       playLabel.setText('LOADING...');
 
-      // Request fullscreen and lock orientation
-      await requestLandscapeFullscreen();
+      try {
+        await requestLandscapeFullscreen();
+        
+        // Wait for fullscreen to be established
+        await new Promise(resolve => {
+          const checkFullscreen = () => {
+            if (document.fullscreenElement || document.webkitFullscreenElement) {
+              resolve();
+            } else {
+              setTimeout(checkFullscreen, 50);
+            }
+          };
+          checkFullscreen();
+        });
+      } catch (error) {
+        console.log('Fullscreen request failed:', error);
+      }
 
-      // Small delay for orientation to settle
-      this.time.delayedCall(200, () => {
+      // Longer delay for orientation and fullscreen to settle properly
+      this.time.delayedCall(500, () => {
         // Clean up listeners
         window.removeEventListener('orientationchange', orientationHandler);
         window.removeEventListener('resize', orientationHandler);
