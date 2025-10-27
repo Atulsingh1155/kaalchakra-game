@@ -8,6 +8,7 @@ import { createMobileControls } from '../utils/mobileControlUtility.js';
 export class Level2Scene extends Phaser.Scene {
     constructor() { 
     super('Level2Scene'); 
+    
     this.distanceRun = 0;
     this.coinsCollected = 0;
     this.coinsNeeded = 50;  // Changed to 30 coins target
@@ -785,41 +786,89 @@ export class Level2Scene extends Phaser.Scene {
     }
   }
   
+  // createLeftEnemy() {
+  //   // Create enemy from the left side
+  //   const enemy = new Enemy(this, 
+  //     this.player.x - Phaser.Math.Between(500, 700), 
+  //     this.groundY, 
+  //     GameData.levelConfigs[2].enemySpeed
+  //   );
+  //   enemy.fromLeft = true;
+  //   enemy.setTint(0xFF6666); // Red tint for left enemies
+    
+  //   // Add health to make enemies more interesting
+  //   enemy.health = 2;
+    
+  //   this.enemiesLeft.add(enemy);
+  //   this.enemies.add(enemy); // Add to combined group
+  //   return enemy;
+  // }
+
   createLeftEnemy() {
-    // Create enemy from the left side
-    const enemy = new Enemy(this, 
-      this.player.x - Phaser.Math.Between(500, 700), 
-      this.groundY, 
-      GameData.levelConfigs[2].enemySpeed
-    );
-    enemy.fromLeft = true;
-    enemy.setTint(0xFF6666); // Red tint for left enemies
-    
-    // Add health to make enemies more interesting
-    enemy.health = 2;
-    
-    this.enemiesLeft.add(enemy);
-    this.enemies.add(enemy); // Add to combined group
-    return enemy;
+  // Check if we already have too many enemies
+  const totalEnemies = this.enemies.children.entries.length;
+  if (totalEnemies >= 10) {
+    return null; // Don't create more enemies
   }
   
+  // Create enemy from the left side
+  const enemy = new Enemy(this, 
+    this.player.x - Phaser.Math.Between(500, 700), 
+    this.groundY, 
+    GameData.levelConfigs[2].enemySpeed
+  );
+  enemy.fromLeft = true;
+  enemy.setTint(0xFF6666); // Red tint for left enemies
+  
+  // Add health to make enemies more interesting
+  enemy.health = 2;
+  
+  this.enemiesLeft.add(enemy);
+  this.enemies.add(enemy); // Add to combined group
+  return enemy;
+}
+  
+  // createRightEnemy() {
+  //   // Create enemy from the right side
+  //   const enemy = new Enemy(this, 
+  //     this.player.x + Phaser.Math.Between(500, 700), 
+  //     this.groundY, 
+  //     GameData.levelConfigs[2].enemySpeed - 10
+  //   );
+  //   enemy.fromLeft = false;
+  //   enemy.setTint(0x6666FF); // Blue tint for right enemies
+    
+  //   // Add health to make enemies more interesting
+  //   enemy.health = 2;
+    
+  //   this.enemiesRight.add(enemy);
+  //   this.enemies.add(enemy); // Add to combined group
+  //   return enemy;
+  // }
+
   createRightEnemy() {
-    // Create enemy from the right side
-    const enemy = new Enemy(this, 
-      this.player.x + Phaser.Math.Between(500, 700), 
-      this.groundY, 
-      GameData.levelConfigs[2].enemySpeed - 10
-    );
-    enemy.fromLeft = false;
-    enemy.setTint(0x6666FF); // Blue tint for right enemies
-    
-    // Add health to make enemies more interesting
-    enemy.health = 2;
-    
-    this.enemiesRight.add(enemy);
-    this.enemies.add(enemy); // Add to combined group
-    return enemy;
+  // Check if we already have too many enemies
+  const totalEnemies = this.enemies.children.entries.length;
+  if (totalEnemies >= 10) {
+    return null; // Don't create more enemies
   }
+  
+  // Create enemy from the right side
+  const enemy = new Enemy(this, 
+    this.player.x + Phaser.Math.Between(500, 700), 
+    this.groundY, 
+    GameData.levelConfigs[2].enemySpeed - 10
+  );
+  enemy.fromLeft = false;
+  enemy.setTint(0x6666FF); // Blue tint for right enemies
+  
+  // Add health to make enemies more interesting
+  enemy.health = 2;
+  
+  this.enemiesRight.add(enemy);
+  this.enemies.add(enemy); // Add to combined group
+  return enemy;
+}
   
   createFlyingEnemy() {
     // Create flying enemies that swoop down
@@ -999,30 +1048,58 @@ export class Level2Scene extends Phaser.Scene {
     });
   }
   
-    startEnemySpawning() {
-    // Set up recurring spawns from both sides - REDUCED FREQUENCY
-    this.enemySpawnTimer = this.time.addEvent({
-      delay: 8000, // Increased from 5000 to 8000ms (fewer enemies)
-      callback: () => {
-        // Randomly determine which type of enemy to spawn
-        const enemyType = Phaser.Math.Between(0, 10);
+  //   startEnemySpawning() {
+  //   // Set up recurring spawns from both sides - REDUCED FREQUENCY
+  //   this.enemySpawnTimer = this.time.addEvent({
+  //     delay: 8000, // Increased from 5000 to 8000ms (fewer enemies)
+  //     callback: () => {
+  //       // Randomly determine which type of enemy to spawn
+  //       const enemyType = Phaser.Math.Between(0, 10);
         
-        if (enemyType < 4) {
-          this.createLeftEnemy();
-        } else if (enemyType < 8) {
-          this.createRightEnemy();
-        } else {
-          // Sometimes spawn flying enemies - reduced chance
-          if (Phaser.Math.Between(0, 2) === 0) { // 1/3 chance instead of always
-            this.createFlyingEnemy();
-          }
+  //       if (enemyType < 4) {
+  //         this.createLeftEnemy();
+  //       } else if (enemyType < 8) {
+  //         this.createRightEnemy();
+  //       } else {
+  //         // Sometimes spawn flying enemies - reduced chance
+  //         if (Phaser.Math.Between(0, 2) === 0) { // 1/3 chance instead of always
+  //           this.createFlyingEnemy();
+  //         }
+  //       }
+  //     },
+  //     callbackScope: this,
+  //     loop: true
+  //   });
+  // }
+  startEnemySpawning() {
+  // Set up recurring spawns from both sides - REDUCED FREQUENCY
+  this.enemySpawnTimer = this.time.addEvent({
+    delay: 12000, // Changed from 8000 to 12000ms (spawn every 12 seconds instead of 8)
+    callback: () => {
+      // Only spawn if we have less than 8 enemies on screen
+      const totalEnemies = this.enemies.children.entries.length;
+      if (totalEnemies >= 8) {
+        return; // Don't spawn more enemies if we already have 8 or more
+      }
+      
+      // Randomly determine which type of enemy to spawn
+      const enemyType = Phaser.Math.Between(0, 10);
+      
+      if (enemyType < 4) {
+        this.createLeftEnemy();
+      } else if (enemyType < 8) {
+        this.createRightEnemy();
+      } else {
+        // Reduce flying enemies even more - only 1/5 chance
+        if (Phaser.Math.Between(0, 4) === 0) {
+          this.createFlyingEnemy();
         }
-      },
-      callbackScope: this,
-      loop: true
-    });
-  }
-  
+      }
+    },
+    callbackScope: this,
+    loop: true
+  });
+}
   shootFireballAtPointer(pointer) {
     // Check cooldown
     if (this.fireballCooldown) return;
@@ -1368,11 +1445,16 @@ export class Level2Scene extends Phaser.Scene {
     enemy.body.setAngularVelocity(enemyDirection * 300);
     
     // Add coins for enemy defeated - increment both UI counter and game stats
-    this.coinsCollected++;
-    GameData.playerStats.coins++;
-    this.coinText.setText(`Coins: ${this.coinsCollected}/${this.coinsToComplete}`);
-    this.updateProgressBar(this.coinsCollected);
+
+    // this.coinsCollected++;
+    // GameData.playerStats.coins++;
+    // this.coinText.setText(`Coins: ${this.coinsCollected}/${this.coinsToComplete}`);
+    // this.updateProgressBar(this.coinsCollected);
     
+    GameData.playerStats.score += 10; // Add score for killing enemy
+      if (this.scoreText) {
+    this.scoreText.setText(`Score: ${GameData.playerStats.score}`);
+  }
     // Show score popup
     const scoreText = this.add.text(enemy.x, enemy.y - 40, '+1', {
       font: '20px Arial',
@@ -1503,7 +1585,7 @@ export class Level2Scene extends Phaser.Scene {
     }).setScrollFactor(0);
     
     // Distance tracker
-    this.distanceText = this.add.text(20, 60, 'Distance: 0/100m', {
+    this.distanceText = this.add.text(20, 60, 'Distance: 0/200m', {
       font: '24px Arial',
       fill: '#00FF00',
       stroke: '#000000',
@@ -1521,6 +1603,16 @@ export class Level2Scene extends Phaser.Scene {
       backgroundColor: "#000000AA", 
       padding: { x: 10, y: 5 }
     }).setScrollFactor(0);
+
+
+     this.scoreText = this.add.text(20, 140, `Score: ${GameData.playerStats.score || 0}`, {
+    font: '24px Arial',
+    fill: '#00FFFF',
+    stroke: '#000000',
+    strokeThickness: 2,
+    backgroundColor: "#000000AA", 
+    padding: { x: 10, y: 5 }
+  }).setScrollFactor(0);
     
     // Direction indicator for enemies
     this.directionIndicator = this.add.container(480, 20).setScrollFactor(0);
@@ -1648,14 +1740,14 @@ export class Level2Scene extends Phaser.Scene {
   
   checkLevelCompletion() {
     // Check if both conditions are met
-    if (this.coinsCollected >= this.coinsToComplete && this.distanceRun >= 100) {
+    if (this.coinsCollected >= this.coinsToComplete && this.distanceRun >= 200) {
       this.completeLevel();
     } else if (this.coinsCollected >= this.coinsToComplete) {
       // If only coins are collected, notify player about distance
       if (!this.distanceNotification) {
         this.distanceNotification = this.add.text(
           480, 150,
-          "Coins collected! Now run 100 meters to break the curse!",
+          "Coins collected! Now run 200 meters to break the curse!",
           {
             font: '20px Arial',
             fill: '#FFFF00',
@@ -2614,10 +2706,10 @@ this.reticleDirection.setTo(
     if (this.player.x > this.startX) {
       const distanceRun = Math.floor((this.player.x - this.startX) / 50);
       this.distanceRun = distanceRun;
-      this.distanceText.setText(`Distance: ${distanceRun}/100m`);
+      this.distanceText.setText(`Distance: ${distanceRun}/200m`);
       
       // Check for level completion
-      if (distanceRun >= 100 && this.coinsCollected >= this.coinsToComplete) {
+      if (distanceRun >= 200 && this.coinsCollected >= this.coinsToComplete) {
         this.completeLevel();
       }
     }

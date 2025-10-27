@@ -2,6 +2,7 @@ export const GameData = {
   playerStats: {
     health: 100,
     coins: 0,
+    score: 0,
     totalCoinsNeeded: 50,
     currentLevel: 1
   },

@@ -420,7 +420,7 @@ export class Level1Scene extends Phaser.Scene {
   
   // ...existing code for congratsLines...
   this.congratsLines = [
-    "Grandmother: 'Well done, dear! You collected all 100 coins!'",
+    "Grandmother: 'Well done, dear! You collected all 50 coins!'",
     "Grandmother: 'I'm so proud of you, Aarav!'",
     "Aarav: 'Thank you, Grandma! Is Papa getting better?'",
     "Grandmother: 'Yes, dear, but we need more medicine!'",

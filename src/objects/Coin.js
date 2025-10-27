@@ -69,8 +69,8 @@ export class Coin extends Phaser.Physics.Arcade.Sprite {
     // Enhanced collection effect with guaranteed destruction
     this.scene.tweens.add({
       targets: this,
-      scaleX: this.scaleX * 30, // Scale from current size
-      scaleY: this.scaleY * 30, // Scale from current size  
+      scaleX: this.scaleX * 3, // Scale from current size
+      scaleY: this.scaleY * 3, // Scale from current size  
       alpha: 0,
       rotation: this.rotation + Math.PI,
       duration: 300,
