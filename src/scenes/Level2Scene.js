@@ -25,6 +25,8 @@ export class Level2Scene extends Phaser.Scene {
     this.lastCheckpoint = null; // For checkpoints
     this.checkpointReached = false;
     this.hazardImmune = false;
+    this.shieldCooldown = false;
+    this.gameOverShown = false;
     
     // Initialize UI elements to prevent null errors
     this.progressBarFill = null;
@@ -44,11 +46,13 @@ export class Level2Scene extends Phaser.Scene {
     GameData.playerStats.currentLevel = 2;
     this.coinsCollected = 0;
 
+
+    
     // IMPORTANT: Reset control flags when restarting
     this.levelComplete = false;
     this.chaseStarted = false; // Will be set to true after power grant sequence
-
-
+    this.shieldCooldown = false;
+    this.gameOverShown = false;
     // FIXED: Reset platform flag to ensure platforms are recreated
     this.platformsCreated = false;
     this.hazardImmune = false;
@@ -138,6 +142,9 @@ export class Level2Scene extends Phaser.Scene {
     
     // Create player
     this.player = new Aarav(this, this.startX, this.groundY);
+
+    this.player.setFlipX(true);
+
     this.physics.add.collider(this.player, this.leftWall);
     this.physics.add.collider(this.player, this.rightWall);
     this.physics.add.collider(this.player, this.platforms);
@@ -1667,10 +1674,22 @@ export class Level2Scene extends Phaser.Scene {
       }
     }
   }
-  
+
   hitByEnemy(player, enemy) {
+    // ADDED: Early return if game is already over
+    if (this.levelComplete) return;
+    
     // Check if player has shield
     if (this.player.hasShield) {
+      // ADDED: Check shield cooldown to prevent spam
+      if (this.shieldCooldown) return;
+      
+      // Set cooldown
+      this.shieldCooldown = true;
+      this.time.delayedCall(500, () => {
+        this.shieldCooldown = false;
+      });
+      
       // Shield blocks damage
       const shieldHitEffect = this.add.circle(player.x, player.y, 45, 0x0088ff, 0.6);
       this.tweens.add({
@@ -1720,9 +1739,67 @@ export class Level2Scene extends Phaser.Scene {
     
     // Game over if health depleted - MODIFIED to restart Level2
     if (GameData.playerStats.health <= 0) {
+      // ADDED: Set levelComplete immediately to prevent multiple calls
+      this.levelComplete = true;
       this.showGameOverScreen();
     }
   }
+  
+  // hitByEnemy(player, enemy) {
+  //   // Check if player has shield
+  //   if (this.player.hasShield) {
+  //     // Shield blocks damage
+  //     const shieldHitEffect = this.add.circle(player.x, player.y, 45, 0x0088ff, 0.6);
+  //     this.tweens.add({
+  //       targets: shieldHitEffect,
+  //       scale: 2,
+  //       alpha: 0,
+  //       duration: 500,
+  //       onComplete: () => shieldHitEffect.destroy()
+  //     });
+      
+  //     // Show shield block message
+  //     const shieldText = this.add.text(player.x, player.y - 60, 'SHIELD BLOCK!', {
+  //       font: '18px Arial',
+  //       fill: '#0088FF',
+  //       stroke: '#000000',
+  //       strokeThickness: 3
+  //     }).setOrigin(0.5);
+      
+  //     this.tweens.add({
+  //       targets: shieldText,
+  //       y: shieldText.y - 30,
+  //       alpha: 0,
+  //       duration: 1000,
+  //       onComplete: () => shieldText.destroy()
+  //     });
+      
+  //     return;
+  //   }
+    
+  //   // Prevent rapid damage
+  //   if (this.damageTime && this.time.now - this.damageTime < 1000) return;
+    
+  //   this.damageTime = this.time.now;
+  //   GameData.playerStats.health -= 10;
+  //   this.healthText.setText(`Health: ${GameData.playerStats.health}`);
+    
+  //   // Different flash effect based on enemy direction
+  //   if (enemy.fromLeft) {
+  //     this.cameras.main.flash(200, 255, 100, 100); // Reddish flash
+  //   } else {
+  //     this.cameras.main.flash(200, 100, 100, 255); // Bluish flash
+  //   }
+    
+  //   // Reduce firepower when hit
+  //   this.fireballPower = Math.max(0, this.fireballPower - 25);
+  //   this.updatePowerMeter(this.fireballPower);
+    
+  //   // Game over if health depleted - MODIFIED to restart Level2
+  //   if (GameData.playerStats.health <= 0) {
+  //     this.showGameOverScreen();
+  //   }
+  // }
   
   //   showGameOverScreen() {
   //   // Disable all game functionality
@@ -1835,15 +1912,45 @@ export class Level2Scene extends Phaser.Scene {
   //     this.scene.start('Level2Scene');
   //   });
   // }
+  // showGameOverScreen() {
+  // // Disable all game functionality
+  // this.levelComplete = true;
+  // this.chaseStarted = false;
+  
+  // // Stop all movement and enemies
+  // this.player.setVelocity(0, 0);
+  // this.player.active = false;
+  // this.player.body.moves = false;
+  
+  // // Stop enemy spawning
+  // if (this.enemySpawnTimer) {
+  //   this.enemySpawnTimer.destroy();
+  // }
+  
+  // // Freeze all enemies
+  // if (this.enemies) {
+  //   this.enemies.getChildren().forEach(enemy => {
+  //     enemy.setVelocity(0, 0);
+  //     enemy.body.moves = false;
+  //   });
+  // }
   showGameOverScreen() {
+  // ADDED: Prevent multiple game over screens
+  if (this.gameOverShown) return;
+  this.gameOverShown = true;
+  
   // Disable all game functionality
   this.levelComplete = true;
   this.chaseStarted = false;
   
   // Stop all movement and enemies
   this.player.setVelocity(0, 0);
+  this.player.setAcceleration(0, 0); // ADDED: Clear any acceleration
+  this.player.body.stop(); // ADDED: Stop all movement
   this.player.active = false;
   this.player.body.moves = false;
+  // ADDED: Disable player physics to prevent further collisions
+  this.player.body.enable = false;
   
   // Stop enemy spawning
   if (this.enemySpawnTimer) {
@@ -1855,6 +1962,10 @@ export class Level2Scene extends Phaser.Scene {
     this.enemies.getChildren().forEach(enemy => {
       enemy.setVelocity(0, 0);
       enemy.body.moves = false;
+      // ADDED: Disable enemy physics to stop collisions
+      if (enemy.body) {
+        enemy.body.enable = false;
+      }
     });
   }
   
@@ -1943,6 +2054,8 @@ export class Level2Scene extends Phaser.Scene {
     // Disable the button immediately to prevent double-clicks
     buttonBackground.disableInteractive();
     retryText.setAlpha(0.5);
+
+     this.gameOverShown = false;
     
     // Fade out
     this.cameras.main.fadeOut(500, 0, 0, 0);
@@ -2049,6 +2162,12 @@ export class Level2Scene extends Phaser.Scene {
       this.powerups.clear(true, true);
       this.powerups = null;
     }
+
+
+    this.gameOverShown = false;
+    this.levelComplete = false;
+    this.chaseStarted = false;
+    this.shieldCooldown = false;
     // Nullify all references to UI elements
     this.coinText = null;
     this.distanceText = null;

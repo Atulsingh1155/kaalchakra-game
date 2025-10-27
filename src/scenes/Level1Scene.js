@@ -57,6 +57,8 @@ export class Level1Scene extends Phaser.Scene {
   
   // FIXED: Create player with fresh state
   this.player = new Aarav(this, 100, this.groundY);
+
+  this.player.setFlipX(true);
   
   // FIXED: Ensure player is properly initialized
   this.player.setActive(true);
@@ -364,90 +366,93 @@ export class Level1Scene extends Phaser.Scene {
     });
   }
   
-  showDadiCongratulations() {
-    console.log('👵 Showing Dadi congratulations dialogue...');
-    
-    // FIXED: Create intro-style background overlay
-    this.overlayBackground = this.add.rectangle(
-      this.cameras.main.scrollX + 480, 
-      270, 
-      960, 
-      540, 
-      0x000000, 
-      0.9
-    );
-    
-    // ADDED: Play intro music like IntroScene
-    try {
-      if (this.cache.audio.exists('introMusic')) {
-        this.congratsMusic = this.sound.add('introMusic', { 
-          loop: true, 
-          volume: 0.3 
-        });
-        this.congratsMusic.play();
-      }
-    } catch (error) {
-      console.log('Error playing congratulations music:', error);
+ showDadiCongratulations() {
+  console.log('👵 Showing Dadi congratulations dialogue...');
+  
+  // FIXED: Create intro-style background overlay
+  this.overlayBackground = this.add.rectangle(
+    this.cameras.main.scrollX + 480, 
+    270, 
+    960, 
+    540, 
+    0x000000, 
+    0.9
+  );
+  
+  // ADDED: Play intro music like IntroScene
+  try {
+    if (this.cache.audio.exists('introMusic')) {
+      this.congratsMusic = this.sound.add('introMusic', { 
+        loop: true, 
+        volume: 0.3 
+      });
+      this.congratsMusic.play();
     }
-    
-    // FIXED: Add grandmother image with proper intro-style sizing
-    this.dadiImage = this.add.image(
-      this.cameras.main.scrollX + 200, 
-      350, 
-      'boy'
-    );
-    
-    // FIXED: Scale like IntroScene - reasonable size
-    const grandmaScale = Math.min(150 / this.dadiImage.width, 150 / this.dadiImage.height);
-    this.dadiImage.setScale(grandmaScale);
-    
-    // FIXED: Add Aarav image too (like IntroScene has boy and grandmother)
-    this.aaravImage = this.add.image(
-      this.cameras.main.scrollX + 760, 
-      350, 'grandmother'
-      
-    );
-    const boyScale = Math.min(150 / this.aaravImage.width, 150 / this.aaravImage.height);
-    this.aaravImage.setScale(boyScale);
-    
-    console.log('👵 Dadi and Aarav images created');
-    
-    // FIXED: Story lines like IntroScene with typing effect
-    this.congratsLines = [
-      "Grandmother: 'Well done, dear! You collected all 100 coins!'",
-      "Grandmother: 'I'm so proud of you, Aarav!'",
-      "Aarav: 'Thank you, Grandma! Is Papa getting better?'",
-      "Grandmother: 'Yes, dear, but we need more medicine!'",
-      "Grandmother: 'The village doctor needs special herbs!'",
-      "Grandmother: 'These herbs grow deep in the forest!'",
-      "Grandmother: 'Go to the village and collect them!'",
-      "Grandmother: 'But be careful! Forest enemies are stronger!'",
-      "Click to start Level 2 – Village Mission..."
-    ];
-    
-    this.currentCongratsLine = 0;
-    
-    // FIXED: Display text like IntroScene - centered and properly sized
-    this.congratsText = this.add.text(
-      this.cameras.main.scrollX + 480, 
-      100, 
-      '', 
-      {
-        font: '24px Arial',
-        fill: '#FFFFFF',
-        stroke: '#000000',
-        strokeThickness: 3,
-        align: 'center',
-        wordWrap: { width: 800 }
-      }
-    ).setOrigin(0.5);
-    
-    console.log('💬 Starting congratulations dialogue...');
-    
-    // Start showing story like IntroScene
-    this.showNextCongratsLine();
+  } catch (error) {
+    console.log('Error playing congratulations music:', error);
   }
   
+  // FIXED: Add Aarav image on LEFT side
+  this.aaravImage = this.add.image(
+    this.cameras.main.scrollX + 200, 
+    350, 
+    'boy'
+  );
+  
+  const boyScale = Math.min(150 / this.aaravImage.width, 150 / this.aaravImage.height);
+  this.aaravImage.setScale(boyScale);
+  
+  // ADDED: Flip Aarav to face RIGHT (toward grandmother)
+  this.aaravImage.setFlipX(true);
+  
+  // FIXED: Add grandmother image on RIGHT side
+  this.dadiImage = this.add.image(
+    this.cameras.main.scrollX + 760, 
+    350, 
+    'grandmother'
+  );
+  
+  // FIXED: Scale like IntroScene - reasonable size
+  const grandmaScale = Math.min(150 / this.dadiImage.width, 150 / this.dadiImage.height);
+  this.dadiImage.setScale(grandmaScale);
+  
+  console.log('👵 Dadi and Aarav images created');
+  
+  // ...existing code for congratsLines...
+  this.congratsLines = [
+    "Grandmother: 'Well done, dear! You collected all 100 coins!'",
+    "Grandmother: 'I'm so proud of you, Aarav!'",
+    "Aarav: 'Thank you, Grandma! Is Papa getting better?'",
+    "Grandmother: 'Yes, dear, but we need more medicine!'",
+    "Grandmother: 'The village doctor needs special herbs!'",
+    "Grandmother: 'These herbs grow deep in the forest!'",
+    "Grandmother: 'Go to the village and collect them!'",
+    "Grandmother: 'But be careful! Forest enemies are stronger!'",
+    "Click to start Level 2 – Village Mission..."
+  ];
+  
+  this.currentCongratsLine = 0;
+  
+  // FIXED: Display text like IntroScene - centered and properly sized
+  this.congratsText = this.add.text(
+    this.cameras.main.scrollX + 480, 
+    100, 
+    '', 
+    {
+      font: '24px Arial',
+      fill: '#FFFFFF',
+      stroke: '#000000',
+      strokeThickness: 3,
+      align: 'center',
+      wordWrap: { width: 800 }
+    }
+  ).setOrigin(0.5);
+  
+  console.log('💬 Starting congratulations dialogue...');
+  
+  // Start showing story like IntroScene
+  this.showNextCongratsLine();
+}
   showNextCongratsLine() {
     if (this.currentCongratsLine < this.congratsLines.length) {
       const line = this.congratsLines[this.currentCongratsLine];
