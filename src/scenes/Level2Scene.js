@@ -45,6 +45,7 @@ export class Level2Scene extends Phaser.Scene {
     GameData.playerStats.health = 100;
     GameData.playerStats.coins = 0;
     GameData.playerStats.currentLevel = 2;
+    GameData.playerStats.score = 0;
     this.coinsCollected = 0;
 
 
@@ -76,41 +77,6 @@ export class Level2Scene extends Phaser.Scene {
     
     this.rightWall = this.add.rectangle(12010, 270, 20, 540, 0x000000, 0);
     this.physics.add.existing(this.rightWall, true);
-  // create() {
-  //   // Reset stats for level 2 - always start fresh
-  //   GameData.playerStats.health = 100;
-  //   GameData.playerStats.coins = 0;
-  //   GameData.playerStats.currentLevel = 2;
-  //   this.coinsCollected = 0;
-
-  //   // IMPORTANT: Reset control flags when restarting
-  //   this.levelComplete = false;
-  //   this.chaseStarted = false;
-    
-  //   // FIXED: Reset platform flag to ensure platforms are recreated
-  //   this.platformsCreated = false;
-  //   this.hazardImmune = false;
-    
-  //   // Extend world bounds for a larger level
-  //   this.physics.world.setBounds(0, 0, 12000, 540);
-    
-  //   // FIXED: Simple background system like Level 1 - no complex parallax
-  //   this.backgrounds = [];
-  //   const worldWidth = 12000;
-  //   const numBackgrounds = Math.ceil(worldWidth / 960) + 2; // Add extra for smooth scrolling
-    
-  //   for (let i = 0; i < numBackgrounds; i++) {
-  //     const bg = this.add.image(480 + (i * 960), 270, 'game_bg2');
-  //     bg.setScrollFactor(0.5); // Simple parallax - doesn't move backgrounds
-  //     this.backgrounds.push(bg);
-  //   }
-    
-  //   // Add walls to prevent player from going out of bounds
-  //   this.leftWall = this.add.rectangle(-10, 270, 20, 540, 0x000000, 0);
-  //   this.physics.add.existing(this.leftWall, true);
-    
-  //   this.rightWall = this.add.rectangle(12010, 270, 20, 540, 0x000000, 0);
-  //   this.physics.add.existing(this.rightWall, true);
     
     // Create platforms and obstacles
     this.platforms = this.physics.add.staticGroup();
@@ -185,68 +151,6 @@ export class Level2Scene extends Phaser.Scene {
       this.mobileControls = mobileControlsResult.controls;
       this.mobileControlsContainer = mobileControlsResult.container;
     }
-    // Add mobile controls
-//     const mobileControlsResult = createMobileControls(this);
-//     if (mobileControlsResult) {
-//       this.mobileControls = mobileControlsResult.controls;
-//       this.mobileControlsContainer = mobileControlsResult.container;
-      
-//       // Add fire button for mobile
-//       const fireButtonStyle = {
-//         fontSize: '32px',
-//         backgroundColor: '#FF000080',
-//         padding: { x: 20, y: 15 },
-//         fixedWidth: 80,
-//         fixedHeight: 80,
-//         align: 'center'
-//       };
-      
-//       const fireButton = this.add.text(660, 450, '🔥', fireButtonStyle)
-//         .setOrigin(0.5)
-//         .setScrollFactor(0)
-//         .setInteractive();
-      
-//       fireButton.on('pointerdown', () => {
-//         if (!this.targetingMode) {
-//           // Direct fire in direction player is facing
-//           const worldPoint = this.playerFacingRight ? 
-//               { x: this.player.x + 200, y: this.player.y - 30 } : 
-//               { x: this.player.x - 200, y: this.player.y - 30 };
-              
-//           // Replace worldToScreen with the correct methods
-//    const screenX = (worldPoint.x - this.cameras.main.scrollX);
-//     const screenY = (worldPoint.y - this.cameras.main.scrollY);
-    
-//     const mockPointer = {
-//       x: screenX,
-//       y: screenY
-//     };
-//     this.shootFireballAtPointer(mockPointer);
-//   }
-// });
-      
-//       // Add targeting mode button
-//       const targetButtonStyle = {
-//         fontSize: '32px',
-//         backgroundColor: '#0000FF80',
-//         padding: { x: 20, y: 15 },
-//         fixedWidth: 80,
-//         fixedHeight: 80,
-//         align: 'center'
-//       };
-      
-//       const targetButton = this.add.text(560, 450, '🎯', targetButtonStyle)
-//         .setOrigin(0.5)
-//         .setScrollFactor(0)
-//         .setInteractive();
-      
-//       targetButton.on('pointerdown', () => {
-//         this.toggleTargetingMode();
-//       });
-      
-//       this.mobileControlsContainer.add(fireButton);
-//       this.mobileControlsContainer.add(targetButton);
-//     }
     
     // Setup collisions
     this.physics.add.overlap(this.player, this.coins, this.collectCoin, null, this);
@@ -786,24 +690,6 @@ export class Level2Scene extends Phaser.Scene {
     }
   }
   
-  // createLeftEnemy() {
-  //   // Create enemy from the left side
-  //   const enemy = new Enemy(this, 
-  //     this.player.x - Phaser.Math.Between(500, 700), 
-  //     this.groundY, 
-  //     GameData.levelConfigs[2].enemySpeed
-  //   );
-  //   enemy.fromLeft = true;
-  //   enemy.setTint(0xFF6666); // Red tint for left enemies
-    
-  //   // Add health to make enemies more interesting
-  //   enemy.health = 2;
-    
-  //   this.enemiesLeft.add(enemy);
-  //   this.enemies.add(enemy); // Add to combined group
-  //   return enemy;
-  // }
-
   createLeftEnemy() {
   // Check if we already have too many enemies
   const totalEnemies = this.enemies.children.entries.length;
@@ -828,23 +714,6 @@ export class Level2Scene extends Phaser.Scene {
   return enemy;
 }
   
-  // createRightEnemy() {
-  //   // Create enemy from the right side
-  //   const enemy = new Enemy(this, 
-  //     this.player.x + Phaser.Math.Between(500, 700), 
-  //     this.groundY, 
-  //     GameData.levelConfigs[2].enemySpeed - 10
-  //   );
-  //   enemy.fromLeft = false;
-  //   enemy.setTint(0x6666FF); // Blue tint for right enemies
-    
-  //   // Add health to make enemies more interesting
-  //   enemy.health = 2;
-    
-  //   this.enemiesRight.add(enemy);
-  //   this.enemies.add(enemy); // Add to combined group
-  //   return enemy;
-  // }
 
   createRightEnemy() {
   // Check if we already have too many enemies
@@ -1048,29 +917,6 @@ export class Level2Scene extends Phaser.Scene {
     });
   }
   
-  //   startEnemySpawning() {
-  //   // Set up recurring spawns from both sides - REDUCED FREQUENCY
-  //   this.enemySpawnTimer = this.time.addEvent({
-  //     delay: 8000, // Increased from 5000 to 8000ms (fewer enemies)
-  //     callback: () => {
-  //       // Randomly determine which type of enemy to spawn
-  //       const enemyType = Phaser.Math.Between(0, 10);
-        
-  //       if (enemyType < 4) {
-  //         this.createLeftEnemy();
-  //       } else if (enemyType < 8) {
-  //         this.createRightEnemy();
-  //       } else {
-  //         // Sometimes spawn flying enemies - reduced chance
-  //         if (Phaser.Math.Between(0, 2) === 0) { // 1/3 chance instead of always
-  //           this.createFlyingEnemy();
-  //         }
-  //       }
-  //     },
-  //     callbackScope: this,
-  //     loop: true
-  //   });
-  // }
   startEnemySpawning() {
   // Set up recurring spawns from both sides - REDUCED FREQUENCY
   this.enemySpawnTimer = this.time.addEvent({
@@ -1444,12 +1290,6 @@ export class Level2Scene extends Phaser.Scene {
     enemy.body.setGravityY(1200);
     enemy.body.setAngularVelocity(enemyDirection * 300);
     
-    // Add coins for enemy defeated - increment both UI counter and game stats
-
-    // this.coinsCollected++;
-    // GameData.playerStats.coins++;
-    // this.coinText.setText(`Coins: ${this.coinsCollected}/${this.coinsToComplete}`);
-    // this.updateProgressBar(this.coinsCollected);
     
     GameData.playerStats.score += 10; // Add score for killing enemy
       if (this.scoreText) {
@@ -1837,195 +1677,6 @@ export class Level2Scene extends Phaser.Scene {
     }
   }
   
-  // hitByEnemy(player, enemy) {
-  //   // Check if player has shield
-  //   if (this.player.hasShield) {
-  //     // Shield blocks damage
-  //     const shieldHitEffect = this.add.circle(player.x, player.y, 45, 0x0088ff, 0.6);
-  //     this.tweens.add({
-  //       targets: shieldHitEffect,
-  //       scale: 2,
-  //       alpha: 0,
-  //       duration: 500,
-  //       onComplete: () => shieldHitEffect.destroy()
-  //     });
-      
-  //     // Show shield block message
-  //     const shieldText = this.add.text(player.x, player.y - 60, 'SHIELD BLOCK!', {
-  //       font: '18px Arial',
-  //       fill: '#0088FF',
-  //       stroke: '#000000',
-  //       strokeThickness: 3
-  //     }).setOrigin(0.5);
-      
-  //     this.tweens.add({
-  //       targets: shieldText,
-  //       y: shieldText.y - 30,
-  //       alpha: 0,
-  //       duration: 1000,
-  //       onComplete: () => shieldText.destroy()
-  //     });
-      
-  //     return;
-  //   }
-    
-  //   // Prevent rapid damage
-  //   if (this.damageTime && this.time.now - this.damageTime < 1000) return;
-    
-  //   this.damageTime = this.time.now;
-  //   GameData.playerStats.health -= 10;
-  //   this.healthText.setText(`Health: ${GameData.playerStats.health}`);
-    
-  //   // Different flash effect based on enemy direction
-  //   if (enemy.fromLeft) {
-  //     this.cameras.main.flash(200, 255, 100, 100); // Reddish flash
-  //   } else {
-  //     this.cameras.main.flash(200, 100, 100, 255); // Bluish flash
-  //   }
-    
-  //   // Reduce firepower when hit
-  //   this.fireballPower = Math.max(0, this.fireballPower - 25);
-  //   this.updatePowerMeter(this.fireballPower);
-    
-  //   // Game over if health depleted - MODIFIED to restart Level2
-  //   if (GameData.playerStats.health <= 0) {
-  //     this.showGameOverScreen();
-  //   }
-  // }
-  
-  //   showGameOverScreen() {
-  //   // Disable all game functionality
-  //   this.levelComplete = true; // Prevents update logic
-  //   this.chaseStarted = false;
-    
-  //   // Stop all movement and enemies
-  //   this.player.setVelocity(0, 0);
-    
-  //   // Disable player controls
-  //   this.player.active = false;
-  //   this.player.body.moves = false;
-    
-  //   // Stop enemy spawning
-  //   if (this.enemySpawnTimer) {
-  //     this.enemySpawnTimer.destroy();
-  //   }
-    
-  //   // Freeze all enemies
-  //   this.enemies.getChildren().forEach(enemy => {
-  //     enemy.setVelocity(0, 0);
-  //     enemy.body.moves = false;
-  //   });
-    
-  //   // Create overlay with fade-in
-  //   const overlay = this.add.rectangle(
-  //     this.cameras.main.scrollX + 480,
-  //     270,
-  //     960, 
-  //     540,
-  //     0x000000,
-  //     0
-  //   ).setScrollFactor(1);
-    
-  //   this.tweens.add({
-  //     targets: overlay,
-  //     alpha: 0.9,
-  //     duration: 1000
-  //   });
-    
-  //   // Game over text with animation
-  //   const gameOverText = this.add.text(
-  //     this.cameras.main.scrollX + 480,
-  //     100,
-  //     'GAME OVER',
-  //     {
-  //       font: '64px Arial',
-  //       fill: '#FF0000',
-  //       stroke: '#000000',
-  //       strokeThickness: 6,
-  //       align: 'center'
-  //     }
-  //   ).setOrigin(0.5).setScrollFactor(1).setAlpha(0);
-    
-  //   this.tweens.add({
-  //     targets: gameOverText,
-  //     alpha: 1,
-  //     y: 200,
-  //     duration: 1000,
-  //     ease: 'Bounce.easeOut'
-  //   });
-    
-  //   // Create a proper button for retrying instead of just text
-  //   const buttonBackground = this.add.rectangle(
-  //     this.cameras.main.scrollX + 480,
-  //     350,
-  //     250,
-  //     60,
-  //     0x660000,
-  //     1
-  //   ).setOrigin(0.5).setScrollFactor(1).setAlpha(0).setInteractive();
-    
-  //   const retryText = this.add.text(
-  //     this.cameras.main.scrollX + 480,
-  //     350,
-  //     'TRY AGAIN',
-  //     {
-  //       font: '32px Arial',
-  //       fill: '#FFFFFF',
-  //       stroke: '#000000',
-  //       strokeThickness: 3,
-  //       align: 'center'
-  //     }
-  //   ).setOrigin(0.5).setScrollFactor(1).setAlpha(0);
-    
-  //   // Show button with delay
-  //   this.tweens.add({
-  //     targets: [buttonBackground, retryText],
-  //     alpha: 1,
-  //     delay: 1000,
-  //     duration: 1000
-  //   });
-    
-  //   // Button hover effect
-  //   buttonBackground.on('pointerover', () => {
-  //     buttonBackground.fillColor = 0x990000;
-  //   });
-    
-  //   buttonBackground.on('pointerout', () => {
-  //     buttonBackground.fillColor = 0x660000;
-  //   });
-    
-  //   // Wait for click on the button to restart (not anywhere on screen)
-  //   buttonBackground.on('pointerdown', () => {
-  //     // Proper cleanup before restart
-  //     this.cleanup();
-      
-  //     // Completely stop the current scene and restart it fresh
-  //     this.scene.stop('Level2Scene');
-  //     this.scene.start('Level2Scene');
-  //   });
-  // }
-  // showGameOverScreen() {
-  // // Disable all game functionality
-  // this.levelComplete = true;
-  // this.chaseStarted = false;
-  
-  // // Stop all movement and enemies
-  // this.player.setVelocity(0, 0);
-  // this.player.active = false;
-  // this.player.body.moves = false;
-  
-  // // Stop enemy spawning
-  // if (this.enemySpawnTimer) {
-  //   this.enemySpawnTimer.destroy();
-  // }
-  
-  // // Freeze all enemies
-  // if (this.enemies) {
-  //   this.enemies.getChildren().forEach(enemy => {
-  //     enemy.setVelocity(0, 0);
-  //     enemy.body.moves = false;
-  //   });
-  // }
   showGameOverScreen() {
   // ADDED: Prevent multiple game over screens
   if (this.gameOverShown) return;
@@ -2168,6 +1819,7 @@ export class Level2Scene extends Phaser.Scene {
       GameData.playerStats.health = 100;
       GameData.playerStats.coins = 0;
       GameData.playerStats.currentLevel = 2;
+      GameData.playerStats.score = 0; 
       
       // Stop and restart the scene
       this.scene.stop('Level2Scene');
@@ -2375,8 +2027,7 @@ export class Level2Scene extends Phaser.Scene {
   });
 }
 
-// NEW METHOD: Show Level 3 under construction message
-// NEW METHOD: Show Level 3 under construction message
+
 showLevel3ConstructionMessage() {
   // Create construction overlay with gradient background
   const constructionOverlay = this.add.rectangle(
@@ -2561,46 +2212,6 @@ showLevel3ConstructionMessage() {
 }
 
 
-  
-//  update() {
-//   if (this.levelComplete) return;
-  
-//   // Player movement
-//   this.player.move(this.cursors, this.mobileControls);
-  
-//   // Track player facing direction for shooting
-//   if (this.player.body.velocity.x > 0) {
-//     this.playerFacingRight = true;
-//   } else if (this.player.body.velocity.x < 0) {
-//     this.playerFacingRight = false;
-//   }
-  
-//   // Fire control with space key
-//   if (Phaser.Input.Keyboard.JustDown(this.spaceKey)) {
-//     if (this.targetingMode) {
-//       // In targeting mode, shoot at reticle
-//       const mockPointer = {
-//         x: this.reticle.x,
-//         y: this.reticle.y
-//       };
-//       this.shootFireballAtPointer(mockPointer);
-//     } else {
-//       // Direct shooting in facing direction
-//       const worldPoint = this.playerFacingRight ? 
-//         { x: this.player.x + 200, y: this.player.y - 30 } : 
-//         { x: this.player.x - 200, y: this.player.y - 30 };
-        
-//        // Replace worldToScreen with the correct method
-//    const screenX = (worldPoint.x - this.cameras.main.scrollX);
-//    const screenY = (worldPoint.y - this.cameras.main.scrollY);
-    
-//       const mockPointer = {
-//       x: screenX,
-//       y: screenY
-//     };
-//     this.shootFireballAtPointer(mockPointer);
-//   }
-// }
 update() {
     if (this.levelComplete) return;
     
@@ -2735,25 +2346,6 @@ this.reticleDirection.setTo(
       }
     }
     
-    // Camera parallax effect for background
-    // this.backgrounds.forEach((bg, i) => {
-    //   // If this background is off-screen to the left
-    //   if (bg.x + 480 < this.cameras.main.scrollX) {
-    //     // Move it to the right end
-    //     const rightmostBg = this.backgrounds.reduce((prev, curr) => {
-    //       return (curr.x > prev.x) ? curr : prev;
-    //     });
-    //     bg.x = rightmostBg.x + 960;
-    //   }
-    //   // If this background is off-screen to the right
-    //   else if (bg.x - 480 > this.cameras.main.scrollX + this.cameras.main.width) {
-    //     // Move it to the left end
-    //     const leftmostBg = this.backgrounds.reduce((prev, curr) => {
-    //       return (curr.x < prev.x) ? curr : prev;
-    //     });
-    //     bg.x = leftmostBg.x - 960;
-    //   }
-    // });
   }
 }
 }
